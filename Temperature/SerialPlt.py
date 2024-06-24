@@ -40,16 +40,17 @@ class Worker(QThread):
             self.start_time = datetime.now()
             while self.is_running:
                 self.ser.write(byte_data)
-                time.sleep(2)
-                response = self.ser.readline()
-                if response:
-                    response_hex = response.hex()
-                    current_time = (datetime.now() - self.start_time).seconds / 60
-                    temperatures = parse_temp(response)
-                    logging.info(f"Time: {current_time}, Temperatures: {temperatures}")
-                    self.result.emit(current_time, temperatures)
-                else:
-                    logging.warning("No response")
+                time.sleep(0.1)
+                if self.ser.in_waiting > 0:
+                    response = self.ser.readline()
+                    if response:
+                        response_hex = response.hex()
+                        current_time = (datetime.now() - self.start_time).seconds / 60
+                        temperatures = parse_temp(response)
+                        logging.info(f"Time: {current_time}, Temperatures: {temperatures}")
+                        self.result.emit(current_time, temperatures)
+                    else:
+                        logging.warning("No response")
         except serial.SerialException as e:
             logging.error("Error")
         finally:
@@ -130,11 +131,13 @@ class Window(QMainWindow):
         self.labels = []
         self.checkboxes = []
         self.plotWidget = PlotWidget()
+        self.plotWidget.setBackground('w')
+        #model
         self.model = PurifierModel()
 
         layout = QVBoxLayout()
 
-        # checkboxes for 8 channels                                                                                              
+        #checkboxes for 8 channels                                                                                              
         for i in range(8):
             h_layout = QHBoxLayout()
             checkbox = QCheckBox()
@@ -159,7 +162,7 @@ class Window(QMainWindow):
 
         self.centralWidget.setLayout(layout)
 
-        # set up plots                                                                                                           
+        #set up plots                                                                                                           
         self.time = []
         self.data = [[] for _ in range(8)]
         self.plotLines = []
@@ -201,20 +204,22 @@ class Window(QMainWindow):
             else:
                 self.labels[i].setText(f"T{i + 1}: --")
 
-        # store data to PurifierModel only for checked boxes                                                                     
-        active_ch = tuple(temperatures[i] if self.checkboxes[i].isChecked() else 'err' for i in range(8))
+        #store data to PurifierModel only for checked boxes, for inactive channels, just put nan so nothing is being append to the model (not saving those data)
+        active_ch = tuple(temperatures[i] if self.checkboxes[i].isChecked() else np.nan for i in range(8))
         self.model.appendData(current_time, *active_ch)
 
-        # add plots...using data stored in PurifierModel                                                                         
+        #add plots...using data stored in PurifierModel                                                  
         self.time.append(current_time)
         for i in range(8):
+            #plot the active channels
             if self.checkboxes[i].isChecked():
                 self.data[i].append(temperatures[i])
                 self.plotLines[i].setData(self.time, self.data[i])
+            else:
+                self.data[i].append(np.nan)
 
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = Window()
-    window.show()
-    sys.exit(app.exec_())
+app = QApplication(sys.argv)
+window = Window()
+window.show()
+sys.exit(app.exec_())

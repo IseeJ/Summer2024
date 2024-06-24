@@ -36,18 +36,19 @@ class Worker(QThread):
             self.start_time = datetime.now()
             while self.is_running:
                 self.ser.write(byte_data)
-                time.sleep(2)
-                response = self.ser.readline()
-                if response:
-                    response_hex = response.hex()
-                    current_time = (datetime.now() - self.start_time).seconds / 60
-                    temperatures = parse_temp(response)
-                    logging.info(f"Time: {current_time}, Temperatures: {temperatures}")
-                    self.result.emit(current_time, temperatures)
-                else:
-                    logging.warning("No response")
+                time.sleep(0.1)
+                if self.ser.in_waiting > 0:
+                    response = self.ser.readline()
+                    if response:
+                        response_hex = response.hex()
+                        current_time = (datetime.now() - self.start_time).seconds / 60
+                        temperatures = parse_temp(response)
+                        logging.info(f"Time: {current_time}, Temperatures: {temperatures}")
+                        self.result.emit(current_time, temperatures)
+                    else:
+                        logging.warning("No response")
         except serial.SerialException as e:
-            logging.error("Error")
+            logging.error("error")
         finally:
             self.ser.close()
             logging.info("Serial stop")
@@ -186,7 +187,7 @@ class Window(QMainWindow):
                 self.labels[i].setText(f"T{i + 1}: --")
 
         #store data to PurifierModel only for checked boxes
-        active_ch = tuple(temperatures[i] if self.checkboxes[i].isChecked() else 'err' for i in range(8))
+        active_ch = tuple(temperatures[i] if self.checkboxes[i].isChecked() else 'NaN' for i in range(8))
         self.model.appendData(current_time, *active_ch)
         #add plots...using data stored in PurifierModel
 
@@ -194,3 +195,4 @@ app = QApplication(sys.argv)
 window = Window()
 window.show()
 sys.exit(app.exec_())
+B
