@@ -145,10 +145,12 @@ class Window(QMainWindow):
             label.setStyleSheet(f"color: white; background-color: rgb{colors[i]}; border: 1px solid black;")
             label.setAlignment(Qt.AlignCenter)
             self.labels.append(label)
+            #horizontal layout for labels and checkboxes
             h_layout.addWidget(checkbox)
             h_layout.addWidget(label)
             layout.addLayout(h_layout)
 
+        #start-stop button
         layout.addWidget(self.plotWidget)
         self.startBtn = QPushButton("Start")
         self.startBtn.clicked.connect(self.startTask)
@@ -159,6 +161,13 @@ class Window(QMainWindow):
         self.stopBtn.setEnabled(False)
         layout.addWidget(self.stopBtn)
 
+        """
+        #reset button
+        self.resetBtn = QPushButton("Reset")
+        self.resetBtn.clicked.connect(self.clearPlot)
+        self.resetBtn.setEnabled(False)
+        layout.addWidget(self.resetBtn)
+        """
         self.centralWidget.setLayout(layout)
 
         #set up plots
@@ -186,18 +195,20 @@ class Window(QMainWindow):
         self.worker.start()
         self.startBtn.setEnabled(False)
         self.stopBtn.setEnabled(True)
-
+        #self.resetBtn.setEnabled(True)
     def stopTask(self):
         if self.worker:
             self.worker.stop()
             self.worker = None
         self.startBtn.setEnabled(True)
         self.stopBtn.setEnabled(False)
-
+        #self.resetBtn.setEnabled(True)
+    """
     def clearPlot(self):
         self.model.reset()
-        self.plotData()
-
+        self.updateData(self, current_time, temperatures)
+        self.resetBtn.setEnabled(False)
+    """ 
     @pyqtSlot(float, tuple)
     def updateData(self, current_time, temperatures):
         # update temp on one that is checked
