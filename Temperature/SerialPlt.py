@@ -16,6 +16,10 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+import pyqtgraph as pg
+from pyqtgraph import PlotWidget
+
+
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 
@@ -61,10 +65,10 @@ class Worker(QThread):
 def hex_dec(T_hex):
     try:
         T_val = int(T_hex, 16)
-        T_max = 18000  #1800C is max, use as threshold to check that the hex is neg
-        hex_max = 0xFFFF  #FFFF max
+        T_max = 18000  # 1800C is max, use as threshold to check that the hex is neg                                             
+        hex_max = 0xFFFF  # FFFF max                                                                                             
         if T_val > T_max:
-            T = -(hex_max - T_val + 1) / 10  #handling negative value
+            T = -(hex_max - T_val + 1) / 10  # handling negative value                                                           
         else:
             T = T_val / 10
         return T
@@ -85,7 +89,7 @@ def parse_temp(response):
 class PurifierModel(QObject):
     def __init__(self, parent=None):
         super(PurifierModel, self).__init__(parent)
-        self.data = []  #to hold tuple
+        self.data = []  # to hold tuple                                                                                          
 
     def lenData(self, parent=QModelIndex()):
         return len(self.data)
@@ -108,7 +112,6 @@ class PurifierModel(QObject):
 
         return None
 
-    
     dataChanged = pyqtSignal()
 
 
@@ -126,11 +129,12 @@ class Window(QMainWindow):
 
         self.labels = []
         self.checkboxes = []
+        self.plotWidget = PlotWidget()
         self.model = PurifierModel()
 
         layout = QVBoxLayout()
 
-        #checkboxes for 8 channels
+        # checkboxes for 8 channels                                                                                              
         for i in range(8):
             h_layout = QHBoxLayout()
             checkbox = QCheckBox()
@@ -143,7 +147,7 @@ class Window(QMainWindow):
             h_layout.addWidget(label)
             layout.addLayout(h_layout)
 
-
+        layout.addWidget(self.plotWidget)
         self.startBtn = QPushButton("Start")
         self.startBtn.clicked.connect(self.startTask)
         layout.addWidget(self.startBtn)
@@ -154,6 +158,18 @@ class Window(QMainWindow):
         layout.addWidget(self.stopBtn)
 
         self.centralWidget.setLayout(layout)
+
+        # set up plots                                                                                                           
+        self.time = []
+        self.data = [[] for _ in range(8)]
+        self.plotLines = []
+
+        colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0),
+                  (255, 0, 255), (0, 255, 255), (128, 0, 0), (0, 128, 0)]
+
+        for i in range(8):
+            plot_line = self.plotWidget.plot(self.time, self.data[i], pen=pg.mkPen(color=colors[i], width=2))
+            self.plotLines.append(plot_line)
 
     def startTask(self):
         self.worker = Worker()
@@ -175,7 +191,7 @@ class Window(QMainWindow):
 
     @pyqtSlot(float, tuple)
     def updateData(self, current_time, temperatures):
-        #update temp on one that is checked
+        # update temp on one that is checked                                                                                     
         for i in range(8):
             if self.checkboxes[i].isChecked():
                 if temperatures[i] != 'err':
@@ -185,12 +201,20 @@ class Window(QMainWindow):
             else:
                 self.labels[i].setText(f"T{i + 1}: --")
 
-        #store data to PurifierModel only for checked boxes
+        # store data to PurifierModel only for checked boxes                                                                     
         active_ch = tuple(temperatures[i] if self.checkboxes[i].isChecked() else 'err' for i in range(8))
         self.model.appendData(current_time, *active_ch)
-        #add plots...using data stored in PurifierModel
 
-app = QApplication(sys.argv)
-window = Window()
-window.show()
-sys.exit(app.exec_())
+        # add plots...using data stored in PurifierModel                                                                         
+        self.time.append(current_time)
+        for i in range(8):
+            if self.checkboxes[i].isChecked():
+                self.data[i].append(temperatures[i])
+                self.plotLines[i].setData(self.time, self.data[i])
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = Window()
+    window.show()
+    sys.exit(app.exec_())
