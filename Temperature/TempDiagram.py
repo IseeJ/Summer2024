@@ -11,6 +11,12 @@ from PyQt5.QtGui import *
 import pyqtgraph as pg
 from pyqtgraph import PlotWidget
 
+import matplotlib as plt
+matplotlib.use('Qt5Agg')
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT as NavigationToolbar
+from matplotlib.figure import Figure
+
+
         
 #Worker, model, same as before
 class Worker(QThread):
@@ -130,6 +136,7 @@ class Window(QMainWindow):
         self.overlayWidget = QWidget(self.imageLabel)
         self.overlayWidget.setGeometry(0, 0, 400, 300)
         self.labels = []
+        """
         self.label_coordinates = [(50, 50), (150, 50), (250, 50), (350, 50), (50, 150), (150, 150), (250, 150), (350, 150)]
         colors = [(255, 0, 0), (146, 224, 20), (0, 0, 255), (245, 136, 27), (105, 46, 35), (0, 184, 245), (128, 0, 0), (0, 128, 0)]
 
@@ -140,7 +147,7 @@ class Window(QMainWindow):
             label.setAlignment(Qt.AlignCenter)
             label.move(*self.label_coordinates[i])
             self.labels.append(label)
-
+        """
         buttonLayout = QHBoxLayout()
 
         self.startBtn = QPushButton("Start")
