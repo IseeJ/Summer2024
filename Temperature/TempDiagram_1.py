@@ -15,8 +15,6 @@ import matplotlib as plt
 matplotlib.use('Qt5Agg')
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
-
-
         
 #Worker, model, same as before
 class Worker(QThread):
@@ -109,13 +107,40 @@ class PurifierModel(QObject):
 
     dataChanged = pyqtSignal()
 
+class MplCanvas(FigureCanvasQTAgg):
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+        super(MplCanvas, self).__init__(fig)
+            
+class MainWindow(QtWidgets.QMainWindow):
+
+    def __init__(self, *args, **kwargs):
+        super(MainWindow, self).__init__(*args, **kwargs)
+        self.worker = None
+
+        sc = MplCanvas(self, width=5, height=4, dpi=100)
+        sc.axes.scatter([430,450,470,300,1600,1500,1140], [420,780,1170,1470,730,1270,1470])
+
+        # Create toolbar, passing canvas as first parament, parent (self, the MainWindow) as second.
+        toolbar = NavigationToolbar(sc, self)
+
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(toolbar)
+        layout.addWidget(sc)
+
+        # Create a placeholder widget to hold our toolbar and canvas.
+        widget = QtWidgets.QWidget()
+        widget.setLayout(layout)
+        self.setCentralWidget(widget)
+
+        self.show()
+
 
 #add image to the plot
 class Window(QMainWindow):
     def __init__(self, parent=None):
-        super().__init__(parent)
-        self.worker = None
-        self.setupUi()
+
 
     def setupUi(self):
         self.setWindowTitle("Temperature")
