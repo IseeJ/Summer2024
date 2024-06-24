@@ -131,11 +131,12 @@ class Window(QMainWindow):
         self.overlayWidget.setGeometry(0, 0, 400, 300)
         self.labels = []
         self.label_coordinates = [(50, 50), (150, 50), (250, 50), (350, 50), (50, 150), (150, 150), (250, 150), (350, 150)]
+        colors = [(255, 0, 0), (146, 224, 20), (0, 0, 255), (245, 136, 27), (105, 46, 35), (0, 184, 245), (128, 0, 0), (0, 128, 0)]
 
         for i in range(8):
             label = QLabel(f"T{i + 1}: --", self.overlayWidget)
             label.setFont(QFont("Arial", 12, QFont.Bold))
-            label.setStyleSheet("color: white;")
+            label.setStyleSheet(f"color: rgb{colors[i]}; background-color: white; border: 1px solid black;")
             label.setAlignment(Qt.AlignCenter)
             label.move(*self.label_coordinates[i])
             self.labels.append(label)
