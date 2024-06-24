@@ -36,7 +36,7 @@ class Worker(QThread):
                     response = self.ser.readline()
                     if response:
                         response_hex = response.hex()
-                        temperatures = getT.parse_temp(response)
+                        temperatures = parse_temp(response)
 
                         #Unixtime                                                                                              
                         current_time = time.time()
