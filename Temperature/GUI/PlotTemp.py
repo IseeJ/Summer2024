@@ -163,8 +163,6 @@ class Window(QMainWindow):
         self.time = []
         self.data = [[] for _ in range(8)]
         self.plotLines = []
-        #colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255), (0, 255, 255), (128, 0, 0), (0, 128, 0)]
-
         for i in range(8):
             plot_line = self.plotWidget.plot(self.time, self.data[i], pen=pg.mkPen(color=colors[i], width=2))
             self.plotLines.append(plot_line)
