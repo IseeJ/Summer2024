@@ -13,8 +13,8 @@ from PyQt5.QtGui import *
 import pyqtgraph as pg
 from pyqtgraph import PlotWidget
 
+from mainwindow import Ui_MainWindow
 
-import SerialRead
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
@@ -33,7 +33,6 @@ class Worker(QThread):
         try:
             hex_data = [0x01, 0x16, 0x7B, 0x28, 0x48, 0x4C, 0x45, 0x48, 0x54, 0x43, 0x34, 0x30, 0x39, 0x35, 0x67, 0x71, 0x29, 0x7D, 0x7E, 0x04]
             byte_data = bytearray(hex_data)
-            #self.start_time = datetime.now()
             while self.is_running:
                 self.ser.write(byte_data)
                 time.sleep(0.1)
@@ -42,9 +41,7 @@ class Worker(QThread):
                     response = self.ser.readline()
                     if response:
                         response_hex = response.hex()
-                        temperatures = SerialRead.parse_temp(response)
-
-                        #Unixtime                                                                                              
+                        temperatures = parse_temp(response)                                                                                           
                         current_time = time.time()
                         logging.info(f"Time: {current_time}, Temperatures: {temperatures}")
                         self.result.emit(current_time, temperatures)
@@ -61,7 +58,6 @@ class Worker(QThread):
         self.quit()
         self.wait()
 
-"""
 def hex_dec(T_hex):
     try:
         T_val = int(T_hex, 16)
@@ -74,7 +70,16 @@ def hex_dec(T_hex):
         return T
     except ValueError:
         return 'err'
-"""
+        
+def parse_temp(response):                                                                       
+    response_hex = response.hex()                                                               
+    temperatures = []                                                                           
+                                                                                                
+    for i in range(8):                                                                          
+        hex_str = response_hex[34+i*4:36+i*4] + response_hex[32+i*4:34+i*4]                     
+        temperatures.append(hex_dec(hex_str))                                                   
+    return tuple(temperatures) 
+    
 
 class PurifierModel(QObject):
     def __init__(self, parent=None):
@@ -107,65 +112,11 @@ class PurifierModel(QObject):
 
 class Window(QMainWindow):
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super(MainWindow, self).__init__(parent)
         self.worker = None
-        self.setupUi()
-
-    def setupUi(self):
-        self.setWindowTitle("Temperature")
-        self.resize(500, 800)
-        self.centralWidget = QWidget()
-        self.setCentralWidget(self.centralWidget)
-
-        self.labels = []
-        self.checkboxes = []
-        self.plotWidget = PlotWidget()
-        self.plotWidget.setBackground('w')
-        #model
-        self.model = PurifierModel()
-        layout = QVBoxLayout()
-        #colors for each channels
-        colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255), (0, 255, 255), (128, 0, 0), (0, 128, 0)]
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
         
-        #checkboxes for 8 channels
-    
-        for i in range(8):
-            h_layout = QHBoxLayout()
-            checkbox = QCheckBox()
-            checkbox.setChecked(True)
-            self.checkboxes.append(checkbox)
-            label = QLabel(f"T{i + 1}: --")
-            label.setStyleSheet(f"background-color: rgb{colors[i]}; border: 1px solid black;")
-            label.setAlignment(Qt.AlignCenter)
-            self.labels.append(label)
-            h_layout.addWidget(checkbox)
-            h_layout.addWidget(label)
-            layout.addLayout(h_layout)
-
-        layout.addWidget(self.plotWidget)
-        self.startBtn = QPushButton("Start")
-        self.startBtn.clicked.connect(self.startTask)
-        layout.addWidget(self.startBtn)
-
-        self.stopBtn = QPushButton("Stop")
-        self.stopBtn.clicked.connect(self.stopTask)
-        self.stopBtn.setEnabled(False)
-        layout.addWidget(self.stopBtn)
-
-        self.centralWidget.setLayout(layout)
-
-        #set up plots
-        styles = {"color": "red", "font-size": "18px"}
-        self.plotWidget.setLabel("left", "Temperature (°C)", **styles)
-        self.plotWidget.setLabel("bottom", "Unix Time", **styles)
-
-        
-        self.time = []
-        self.data = [[] for _ in range(8)]
-        self.plotLines = []
-        for i in range(8):
-            plot_line = self.plotWidget.plot(self.time, self.data[i], pen=pg.mkPen(color=colors[i], width=2))
-            self.plotLines.append(plot_line)
             
     def startTask(self):
         self.worker = Worker()
