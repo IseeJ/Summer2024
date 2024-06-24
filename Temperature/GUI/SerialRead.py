@@ -1,12 +1,21 @@
 import serial
 
+
+def OpenPort(self):
+    self.ser = serial.Serial(self.port, self.baud, timeout=self.timeout)
+        
+def ClosePort(self):
+    self.ser.close()
+
+def
+        
 def hex_dec(T_hex):
     try:
         T_val = int(T_hex, 16)
         T_max = 18000  # 1800C is max, use as threshold to check that the hex is neg
         hex_max = 0xFFFF  # FFFF max
         if T_val > T_max:
-            T = -(hex_max - T_val + 1) / 10  # handling negative value                                                      
+            T = -(hex_max - T_val + 1) / 10  # handling negative value
         else:
             T = T_val / 10
         return T
