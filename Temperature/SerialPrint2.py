@@ -64,7 +64,7 @@ def hex_dec(T_hex):
         T_max = 18000  #1800C is max, use as threshold to check that the hex is neg
         hex_max = 0xFFFF  #FFFF max
         if T_val > T_max:
-            T = -(hex_max - T_val + 1) / 100  #handling negative value
+            T = -(hex_max - T_val + 1) / 10  #handling negative value
         else:
             T = T_val / 10
         return T
@@ -180,6 +180,8 @@ class Window(QMainWindow):
         filtered_temperatures = tuple(temperatures[i] if self.checkboxes[i].isChecked() else 'err' for i in range(8))
         self.model.appendData(current_time, *filtered_temperatures)
 
+
+        #add plots...using data stored in PurifierModel
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
