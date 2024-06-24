@@ -11,7 +11,7 @@ from PyQt5.QtGui import *
 import pyqtgraph as pg
 from pyqtgraph import PlotWidget
 
-class getT():
+class getT:
     def hex_dec(T_hex):
         try:
             T_val = int(T_hex, 16)
