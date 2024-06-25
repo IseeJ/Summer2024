@@ -119,51 +119,7 @@ class MainWindow(QMainWindow):
         self.ui.clearButton.pressed.connect(self.clearPlot)
         self.model = PurifierModel()
         self.initGraph()
-        """
-    def setupUi(self):
-        self.setWindowTitle("Temperature")
-        self.resize(500, 800)
-        self.centralWidget = QWidget()
-        self.setCentralWidget(self.centralWidget)
-
-        self.labels = []
-        self.checkboxes = []
-        self.plotWidget = PlotWidget()
-        self.plotWidget.setBackground('w')
-
-        #model
-        self.model = PurifierModel()
-        layout = QVBoxLayout()
-        #colors for each channels
-        #colors = [(255, 0, 0), (146, 224, 20), (197, 115, 230), (245, 136, 27), (255, 0, 255), (0, 184, 245), (189, 124, 77), (0, 128, 0)]
-        colors = [(183, 101, 224), (93, 131, 212), (49, 205, 222), (36, 214, 75), (214, 125, 36),(0, 184, 245), (209, 84, 65), (230, 78, 192)]
-        #checkboxes for 8 channels
-        for i in range(8):
-            h_layout = QHBoxLayout()
-            checkbox = QCheckBox()
-            checkbox.setChecked(True)
-            self.checkboxes.append(checkbox)
-            label = QLabel(f"T{i + 1}: --")
-            label.setStyleSheet(f"color: white; background-color: rgb{colors[i]}; border: 1px solid black;")
-            label.setAlignment(Qt.AlignCenter)
-            self.labels.append(label)
-            #horizontal layout for labels and checkboxes
-            h_layout.addWidget(checkbox)
-            h_layout.addWidget(label)
-            layout.addLayout(h_layout)
-
-        #start-stop button
-        layout.addWidget(self.plotWidget)
-        self.startBtn = QPushButton("Start")
-        self.startBtn.clicked.connect(self.startTask)
-        layout.addWidget(self.startBtn)
-
-        self.stopBtn = QPushButton("Stop")
-        self.stopBtn.clicked.connect(self.stopTask)
-        self.stopBtn.setEnabled(False)
-        layout.addWidget(self.stopBtn)
-
-        """
+    
     def initGraph(self):
         #set up plots
         self.ui.graphWidget.setBackground("w")
