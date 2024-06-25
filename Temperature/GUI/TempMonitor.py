@@ -182,7 +182,7 @@ class MainWindow(QMainWindow):
         """
         for i in range(8):
             #plot the active channels
-            if self.checkboxes[i].isChecked():
+            if self.ui.checkboxes[i].isChecked():
                 self.data[i].append(temperatures[i])
                 self.plotLines[i].setData(self.time, self.data[i])
             else:
@@ -191,8 +191,8 @@ class MainWindow(QMainWindow):
         """
         for i in range(8):
              self.data[i].append(temperatures[i])
-             self.plotLines[i].setData(self.time[i], self.temperatures[i]) 
-                
+             self.plotLines[i].setData(self.time, self.data[i]) 
+     
 app = QApplication(sys.argv)
 window = MainWindow()
 window.show()
