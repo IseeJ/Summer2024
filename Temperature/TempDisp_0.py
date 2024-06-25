@@ -117,23 +117,16 @@ class Window(QMainWindow):
         super().__init__(parent)
         self.worker = None
         self.setupUi()
-        # connect signals/slots
-        self.startStopButton.pressed.connect(self.toggleRun)
-        self.clearButton.pressed.connect(self.clearPlot)
 
-        
     def setupUi(self):
         self.setWindowTitle("Temperature")
         self.resize(500, 800)
         self.centralWidget = QWidget()
         self.setCentralWidget(self.centralWidget)
 
-        self.verticalLayout = QVBoxLayout(self.centralWidget)
-        self.verticalLayout.setObjectName("verticalLayout")
-        
         self.labels = []
         self.checkboxes = []
-        self.plotWidget = PlotWidget(self.centralWidget)
+        self.plotWidget = PlotWidget()
         self.plotWidget.setBackground('w')
 
         #model
@@ -158,13 +151,6 @@ class Window(QMainWindow):
             layout.addLayout(h_layout)
 
         #start-stop button
-        self.startStopButton = QPushButton(self.centralWidget)
-        self.startStopButton.setObjectName("startStopButton")
-        self.verticalLayout.addWidget(self.startStopButton)
-        self.clearButton = QPushButton(self.centralWidget)
-        self.clearButton.setObjectName("clearButton")
-
-        """
         layout.addWidget(self.plotWidget)
         self.startBtn = QPushButton("Start")
         self.startBtn.clicked.connect(self.startTask)
@@ -174,7 +160,8 @@ class Window(QMainWindow):
         self.stopBtn.clicked.connect(self.stopTask)
         self.stopBtn.setEnabled(False)
         layout.addWidget(self.stopBtn)
-        
+
+        """
         #reset button
         self.resetBtn = QPushButton("Reset")
         self.resetBtn.clicked.connect(self.clearPlot)
@@ -201,32 +188,21 @@ class Window(QMainWindow):
         for i in range(8):
             plot_line = self.plotWidget.plot(self.time, self.data[i], pen=pg.mkPen(color=colors[i], width=2))
             self.plotLines.append(plot_line)
-
-
-    def toggleRun(self):
-        if self.worker is not None:
-            self.stopTask()
-        else:
-            self.startTask()
             
     def startTask(self):
         self.worker = Worker()
         self.worker.result.connect(self.updateData)
         self.worker.start()
-        #self.startBtn.setEnabled(False)
-        #self.stopBtn.setEnabled(True)
+        self.startBtn.setEnabled(False)
+        self.stopBtn.setEnabled(True)
         #self.resetBtn.setEnabled(True)
     def stopTask(self):
         if self.worker:
             self.worker.stop()
             self.worker = None
-        #self.startBtn.setEnabled(True)
-        #self.stopBtn.setEnabled(False)
+        self.startBtn.setEnabled(True)
+        self.stopBtn.setEnabled(False)
         #self.resetBtn.setEnabled(True)
-    def clearPlot(self):
-        self.model.reset()
-        self.worker.start()
-        
     """
     def clearPlot(self):
         self.model.reset()
