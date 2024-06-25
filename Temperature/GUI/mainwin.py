@@ -13,42 +13,89 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QModelIndex, QObject
 from PyQt5.QtGui import QPixmap, QPainter, QColor, QFont, QImage
 from pyqtgraph import PlotWidget
 
+
+"""
 class DiagramWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.image = QImage("diagram.png")
         self.image = self.image.scaled(250, 565, QtCore.Qt.KeepAspectRatio) 
-        self.labels = [(50, 50, "Label1"), (150, 150, "Label2"), (100, 300, "Label3")]
-        
+
+        #self.labels = [(50, 50, "Label1"), (150, 150, "Label2"), (100, 300, "Label3")]
+        self.labels = [QtWidgets.QLabel(f"T{i + 1}: --") for i in range(8)]
         self.colors = [(183, 101, 224), (93, 131, 212), (49, 205, 222), (36, 214, 75),
                        (214, 125, 36), (230, 78, 192), (209, 84, 65), (0, 184, 245)]
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.drawImage(QPoint(0, 0), self.image)
+        #center img
+        y0 = (self.height() - self.image.height()) // 2
+        painter.drawImage(QPoint(0, y0), self.image)
+        #painter.drawImage(QPoint(0, 0), self.image)
         for i, (x, y, text) in enumerate(self.labels):
             painter.setPen(QColor(*self.colors[i % len(self.colors)]))
             painter.setFont(QFont("Arial", 12, QFont.Bold))
-            painter.drawText(x, y, text)
+            painter.drawText(x, y0+y, text)
+"""
 
+
+
+class DiagramWidget(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.image = QImage("diagram.png")
+        self.image = self.image.scaled(250, 565, QtCore.Qt.KeepAspectRatio)
+        
+        # Define labels with initial text and coordinates (x, y)
+        self.labels = [
+            {"text": f"T{i + 1}: --", "position": (50, 50)},
+            {"text": f"T{i + 2}: --", "position": (150, 150)},
+            {"text": f"T{i + 3}: --", "position": (100, 300)},
+            {"text": f"T{i + 4}: --", "position": (200, 100)},
+            {"text": f"T{i + 5}: --", "position": (50, 200)},
+            {"text": f"T{i + 6}: --", "position": (150, 400)},
+            {"text": f"T{i + 7}: --", "position": (200, 300)},
+            {"text": f"T{i + 8}: --", "position": (100, 400)}
+        ]
+
+        self.colors = [(183, 101, 224), (93, 131, 212), (49, 205, 222), (36, 214, 75),
+                       (214, 125, 36), (230, 78, 192), (209, 84, 65), (0, 184, 245)]
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        y0 = (self.height() - self.image.height()) // 2
+        painter.drawImage(QPoint(0, y0), self.image)
+        
+        for label_data in self.labels:
+            x, y = label_data["position"]
+            text = label_data["text"]
+            
+            painter.setPen(QColor(*self.colors[self.labels.index(label_data) % l            painter.drawText(x, y0 + y, text)
+            
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1197, 565)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.colors = [(183, 101, 224), (93, 131, 212), (49, 205, 222), (36, 214, 75), (214, 125, 36) ,(230, 78, 192), (209, 84, 65), (0, 184, 245)]
+        self.centralwidget = DiagramWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName("verticalLayout")
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
-
-        self.DiagramWidget = QtWidgets.QWidget(self.centralwidget)
+        
+        self.DiagramWidget = DiagramWidget(self.centralwidget)
         self.DiagramWidget.setMaximumSize(QtCore.QSize(250, 565))
         self.DiagramWidget.setObjectName("DiagramWidget")
         self.horizontalLayout.addWidget(self.DiagramWidget)
-        
-        self.colors = [(183, 101, 224), (93, 131, 212), (49, 205, 222), (36, 214, 75), (214, 125, 36) ,(230, 78, 192), (209, 84, 65), (0, 184, 245)]
 
+
+        spacerWidth = 300
+        spacerItem = QtWidgets.QSpacerItem(spacerWidth, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        #spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem)
+                                        
+                       
         self.graphWidget = PlotWidget(self.centralwidget)
         self.graphWidget.setMinimumSize(QtCore.QSize(348, 0))
         self.graphWidget.setObjectName("PlotWidget")
