@@ -28,6 +28,20 @@ class Ui_MainWindow(object):
         #self.DiagramWidget.setMinimumSize(QtCore.QSize(175, 426))
         self.DiagramWidget.setMaximumSize(QtCore.QSize(250, 565))
         self.DiagramWidget.setObjectName("DiagramWidget")
+        self.colors = colors = [(183, 101, 224), (93, 131, 212), (49, 205, 222), (36, 214, 75), (214, 125, 36) ,(230, 78, 192), (209, 84, 65), (0, 184, 245)]
+
+        """
+        self.labels=[]
+        for i in range(8):
+            self.label = QtWidgets.QLabel(self.DiagramWidget)
+            self.label.setGeometry(QtCore.QRect(30, 150, 60, 16))
+            self.label.setObjectName(f"T{i+1}")
+            self.label.setStyleSheet(f"color: white; background-color: rgb{self.colors[i]}; border: 1px solid black;")
+            #self.verticalLayout_4.addWidget(self.label)
+            self.labels.append(self.label)
+        self.horizontalLayout.addWidget(self.DiagramWidget)
+        """
+
         #self.horizontalLayout.addWidget(self.DiagramWidget)
         self.imageLabel = QtWidgets.QLabel()
         pixmap = QPixmap("diagram.png")
@@ -41,12 +55,26 @@ class Ui_MainWindow(object):
         self.graphWidget.setObjectName("PlotWidget")
         self.horizontalLayout.addWidget(self.graphWidget)
 
-
+        
         self.verticalLayout_2 = QtWidgets.QVBoxLayout()
         self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.checkBox = QtWidgets.QCheckBox(self.centralwidget)
-        self.checkBox.setMaximumSize(QtCore.QSize(100, 20))
-        self.checkBox.setObjectName("checkBox")
+        self.checkboxes = []
+
+        #self.labels=[]
+        #self.colors = [(183, 101, 224), (93, 131, 212), (49, 205, 222), (36, 214, 75), (214, 125, 36),(0, 184, 245), (209, 84, 65), (230, 78, 192)]
+        for i in range(8):
+            self.checkBox = QtWidgets.QCheckBox(self.centralwidget)
+            self.checkBox.setMaximumSize(QtCore.QSize(100,20))
+            self.checkBox.setObjectName(f"T{i+1}")
+            self.checkBox.setChecked(True)
+            self.verticalLayout_2.addWidget(self.checkBox)
+            self.checkBox.setStyleSheet(f"color: white; background-color: rgb{self.colors[i]}; border: 1px solid black;")
+            self.checkboxes.append(self.checkBox)
+
+        """
+        self.checkBox_1 = QtWidgets.QCheckBox(self.centralwidget)
+        self.checkBox_1.setMaximumSize(QtCore.QSize(100, 20))
+        self.checkBox_1.setObjectName("checkBox_1")
         self.verticalLayout_2.addWidget(self.checkBox)
         self.checkBox_2 = QtWidgets.QCheckBox(self.centralwidget)
         self.checkBox_2.setMaximumSize(QtCore.QSize(100, 20))
@@ -76,6 +104,7 @@ class Ui_MainWindow(object):
         self.checkBox_8.setMaximumSize(QtCore.QSize(100, 20))
         self.checkBox_8.setObjectName("checkBox_8")
         self.verticalLayout_2.addWidget(self.checkBox_8)
+        """
         self.startStopButton = QtWidgets.QPushButton(self.centralwidget)
         self.startStopButton.setMaximumSize(QtCore.QSize(100, 16777215))
         self.startStopButton.setObjectName("startStopButton")
@@ -86,6 +115,17 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.clearButton)
         self.verticalLayout_4 = QtWidgets.QVBoxLayout()
         self.verticalLayout_4.setObjectName("verticalLayout_4")
+
+        self.labels = []
+        for i in range(8):
+            self.label = QtWidgets.QLabel(self.centralwidget)
+            self.label.setGeometry(QtCore.QRect(30, 150, 60, 16))
+            self.label.setObjectName(f"T{i+1}")
+            self.verticalLayout_4.addWidget(self.label)
+            self.labels.append(self.label)
+            self.label.setStyleSheet(f"color: white; background-color: rgb{self.colors[i]}; border: 1px solid black;")
+
+       
         self.verticalLayout_2.addLayout(self.verticalLayout_4)
         self.horizontalLayout.addLayout(self.verticalLayout_2)
         self.verticalLayout.addLayout(self.horizontalLayout)
@@ -110,7 +150,12 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Todo"))
-        self.checkBox.setText(_translate("MainWindow", "T1"))
+
+        for i in range(8):
+            self.checkboxes[i].setText(_translate("MainWindow",f"T{i+1}"))
+            self.labels[i].setText(_translate("MainWindow", f"T{i+1}"))
+        """
+        self.checkBox_1.setText(_translate("MainWindow", "T1"))
         self.checkBox_2.setText(_translate("MainWindow", "T2"))
         self.checkBox_3.setText(_translate("MainWindow", "T3"))
         self.checkBox_4.setText(_translate("MainWindow", "T4"))
@@ -118,8 +163,10 @@ class Ui_MainWindow(object):
         self.checkBox_6.setText(_translate("MainWindow", "T6"))
         self.checkBox_7.setText(_translate("MainWindow", "T7"))
         self.checkBox_8.setText(_translate("MainWindow", "T8"))
+        """
         self.startStopButton.setText(_translate("MainWindow", "Start/Stop"))
         self.clearButton.setText(_translate("MainWindow", "Clear"))
+    
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionSave.setText(_translate("MainWindow", "Save"))
 

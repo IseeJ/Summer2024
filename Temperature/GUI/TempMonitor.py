@@ -131,9 +131,9 @@ class MainWindow(QMainWindow):
         self.data = [[] for _ in range(8)]
         self.plotLines = []
 
-        colors = [(183, 101, 224), (93, 131, 212), (49, 205, 222), (36, 214, 75), (214, 125, 36),(0, 184, 245), (209, 84, 65), (230, 78, 192)]
+        self.colors = [(183, 101, 224), (93, 131, 212), (49, 205, 222), (36, 214, 75), (214, 125, 36) ,(230, 78, 192), (209, 84, 65), (0, 184, 245)]
         for i in range(8):
-            plot_line = self.ui.graphWidget.plot(self.time, self.data[i], pen=pg.mkPen(color=colors[i], width=2))
+            plot_line = self.ui.graphWidget.plot(self.time, self.data[i], pen=pg.mkPen(color=self.colors[i], width=2))
             self.plotLines.append(plot_line)
 
     def toggleRun(self):
@@ -153,12 +153,15 @@ class MainWindow(QMainWindow):
     
     def clearPlot(self):
         self.model.reset()
-        self.updateData(self, current_time, temperatures)
-        self.resetBtn.setEnabled(False)
+        self.plotLines = []
+        for i in range(8):
+            plot_line = self.ui.graphWidget.plot(self.time, self.data[i], pen=pg.mkPen(color=self.colors[i], width=2))
+            self.plotLines.append(plot_line)
+        #self.ui.graphWidget.plot(self.time, self.data[i], pen=pg.mkPen(color=colors[i], width=2))
+        #self.ui.clearButton.setEnabled(False)
      
     @pyqtSlot(float, tuple)
     def updateData(self, current_time, temperatures):
-        """
         # update temp on one that is checked
         for i in range(8):
             if self.ui.checkboxes[i].isChecked():
@@ -168,18 +171,17 @@ class MainWindow(QMainWindow):
                     self.ui.labels[i].setText(f"T{i + 1}: --")
             else:
                 self.ui.labels[i].setText(f"T{i + 1}: --")
-        """
         #store data to PurifierModel only for checked boxes, for inactive channels, just put nan so nothing is being append to the model (not saving those data)
         
-        #active_ch = tuple(temperatures[i] if self.ui.checkboxes[i].isChecked() else np.nan for i in range(8))
-        #self.model.appendData(current_time, *active_ch)
-        active_ch = tuple(temperatures[i] for i in range(8))
-        self.model.appendData(current_time, *active_ch) 
+        active_ch = tuple(temperatures[i] if self.ui.checkboxes[i].isChecked() else np.nan for i in range(8))
+        self.model.appendData(current_time, *active_ch)
+        #active_ch = tuple(temperatures[i] for i in range(8))
+        #self.model.appendData(current_time, *active_ch) 
         #add plots...using data stored in PurifierModel
         self.time.append(current_time)
         
         #self.time.append(self.model.lenData())
-        """
+    
         for i in range(8):
             #plot the active channels
             if self.ui.checkboxes[i].isChecked():
@@ -191,8 +193,8 @@ class MainWindow(QMainWindow):
         """
         for i in range(8):
              self.data[i].append(temperatures[i])
-             self.plotLines[i].setData(self.time, self.data[i]) 
-     
+             self.plotLines[i].setData(self.time, self.data[i])
+        """
 app = QApplication(sys.argv)
 window = MainWindow()
 window.show()
