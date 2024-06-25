@@ -39,7 +39,6 @@ class DiagramWidget(QtWidgets.QWidget):
 """
 
 
-
 class DiagramWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -70,8 +69,20 @@ class DiagramWidget(QtWidgets.QWidget):
             x, y = label_data["position"]
             text = label_data["text"]
             
-            painter.setPen(QColor(*self.colors[self.labels.index(label_data) % l            painter.drawText(x, y0 + y, text)
-            
+            painter.setPen(QColor(*self.colors[self.labels.index(label_data) % len(self.colors)]))
+            painter.setFont(QFont("Arial", 12, QFont.Bold))
+            painter.drawText(x, y0 + y, text)
+
+    def updateData(self, temperatures):
+        for i, temp in enumerate(temperatures):
+            if temp != 'err':
+                self.labels[i]["text"] = f"T{i + 1}: {temp:.1f}"
+            else:
+                self.labels[i]["text"] = f"T{i + 1}: --"
+        
+        self.update()
+
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
