@@ -13,20 +13,20 @@ from PyQt5.QtGui import *
 import pyqtgraph as pg
 from pyqtgraph import PlotWidget
 
-from mainwindow import Ui_MainWindow
+from mainwin import Ui_MainWindow
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 
 class Worker(QThread):
     result = pyqtSignal(float, tuple)
-
     def __init__(self):
         super().__init__()
         self.ser = serial.Serial('/dev/cu.usbserial-110', 38400, timeout=2)
         self.is_running = True
         logging.info("Serial Start")
         #self.start_time = None
+
     def run(self):
         try:
             hex_data = [0x01, 0x16, 0x7B, 0x28, 0x48, 0x4C, 0x45, 0x48, 0x54, 0x43, 0x34, 0x30, 0x39, 0x35, 0x67, 0x71, 0x29, 0x7D, 0x7E, 0x04]
@@ -55,7 +55,7 @@ class Worker(QThread):
         finally:
             self.ser.close()
             logging.info("Serial stop")
-
+            
     def stop(self):
         self.is_running = False
         self.quit()
