@@ -112,7 +112,7 @@ class Ui_MainWindow(object):
         for i in range(8):
             label = QtWidgets.QLabel(self.DiagramWidget)
             label.setText(f"T{i+1}")
-            label.setStyleSheet(f"font-weight: bold; font-size: 16px; color: white ; background-color: rgb{self.colors[i]}; border: 1px solid black;")
+            label.setStyleSheet(f"font-weight: bold; font-size: 12px; color: white ; background-color: rgb{self.colors[i]}; border: 1px solid black;")
             label.setFixedSize(60, 20)
             #label.move(i*20, i*20)
             self.labels.append(label)
