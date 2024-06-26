@@ -2,7 +2,7 @@ import sys
 import logging
 import time
 from datetime import datetime as dt
-#import serial
+import serial
 import numpy as np
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QModelIndex, QObject
 import time
@@ -12,7 +12,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import * 
 import pyqtgraph as pg
 from pyqtgraph import PlotWidget
-from PyQt5.QtSerialPort import QSerialPort, QSerialPortInfo
 
 from mainwindow import Ui_MainWindow
 
@@ -21,21 +20,13 @@ logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 class Worker(QThread):
     result = pyqtSignal(float, tuple)
-
-    """
     def __init__(self):
         super().__init__()
         self.ser = serial.Serial('/dev/cu.usbserial-110', 38400, timeout=2)
         self.is_running = True
         logging.info("Serial Start")
-    """
-    def __init__(self):
-        super().__init__()
-        self.serial = QSerialPort()
-        self.serial.setPortName('/dev/cu.usbserial-110')
-        self.serial.setBaudRate(QSerialPort.Baud38400)
-        self._isRunning = True
-    """
+        #self.start_time = None
+
     def run(self):
         try:
             hex_data = [0x01, 0x16, 0x7B, 0x28, 0x48, 0x4C, 0x45, 0x48, 0x54, 0x43, 0x34, 0x30, 0x39, 0x35, 0x67, 0x71, 0x29, 0x7D, 0x7E, 0x04]
@@ -64,38 +55,7 @@ class Worker(QThread):
         finally:
             self.ser.close()
             logging.info("Serial stop")
-    """
-    def run(self):
-        try:
-            hex_data = [0x01, 0x16, 0x7B, 0x28, 0x48, 0x4C, 0x45, 0x48, 0x54, 0x43, 0x34, 0x30, 0x39, 0x35, 0x67,0x71, 0x29, 0x7D, 0x7E, 0x04]
-            byte_data = bytearray(hex_data)
             
-            if not self.serial.open(QSerialPort.ReadWrite):
-                logging.error(f"Can't open port")
-                return
-            
-            while self._isRunning:
-                self.serial.write(byte_data)
-                time.sleep(0.1)
-                
-                if self.serial.bytesAvailable() >= 37:
-                    response = self.serial.readLine()
-                    if response:
-                        response_hex = response.hex()
-                        temperatures = parse_temp(response_hex)
-                        
-                        current_time = time.time()
-                        logging.info(f"Time: {current_time}, Temperatures: {temperatures}")
-                        self.result.emit(current_time, temperatures)
-                    else:
-                        logging.warning("No response")
-        except Exception as e:
-            logging.error(f"Error: {e}")
-        finally:
-            self.serial.close()
-            logging.info("Serial stopped")
-
-    
     def stop(self):
         self.is_running = False
         self.quit()
