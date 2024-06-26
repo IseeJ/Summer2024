@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 AA-*-
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
@@ -36,7 +36,7 @@ class DiagramWidget(QtWidgets.QWidget):
             painter.setPen(QColor(*self.colors[i % len(self.colors)]))
             painter.setFont(QFont("Arial", 12, QFont.Bold))
             painter.drawText(x, y0+y, text)
-"""
+
 
 
 class DiagramWidget(QtWidgets.QWidget):
@@ -44,21 +44,18 @@ class DiagramWidget(QtWidgets.QWidget):
         super().__init__(parent)
         self.image = QImage("diagram.png")
         self.image = self.image.scaled(250, 565, QtCore.Qt.KeepAspectRatio)
-        
-        # Define labels with initial text and coordinates (x, y)
         self.labels = [
-            {"text": f"T{i + 1}: --", "position": (50, 50)},
-            {"text": f"T{i + 2}: --", "position": (150, 150)},
-            {"text": f"T{i + 3}: --", "position": (100, 300)},
-            {"text": f"T{i + 4}: --", "position": (200, 100)},
-            {"text": f"T{i + 5}: --", "position": (50, 200)},
-            {"text": f"T{i + 6}: --", "position": (150, 400)},
-            {"text": f"T{i + 7}: --", "position": (200, 300)},
-            {"text": f"T{i + 8}: --", "position": (100, 400)}
+            {"text": f"T1: --", "position": (50, 50)},
+            {"text": f"T2: --", "position": (150, 150)},
+            {"text": f"T3: --", "position": (100, 300)},
+            {"text": f"T4: --", "position": (200, 100)},
+            {"text": f"T5: --", "position": (50, 200)},
+            {"text": f"T6: --", "position": (150, 400)},
+            {"text": f"T7: --", "position": (200, 300)},
+            {"text": f"T8: --", "position": (100, 400)}
         ]
 
-        self.colors = [(183, 101, 224), (93, 131, 212), (49, 205, 222), (36, 214, 75),
-                       (214, 125, 36), (230, 78, 192), (209, 84, 65), (0, 184, 245)]
+        self.colors = [(183, 101, 224), (93, 131, 212), (49, 205, 222), (36, 214, 75), (214, 125, 36), (230, 78, 192), (209, 84, 65), (0, 184, 245)]
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -73,7 +70,8 @@ class DiagramWidget(QtWidgets.QWidget):
             painter.setFont(QFont("Arial", 12, QFont.Bold))
             painter.drawText(x, y0 + y, text)
 
-    def updateData(self, temperatures):
+    @pyqtSlot(float, tuple)
+    def updateData(self, current_time, temperatures):
         for i, temp in enumerate(temperatures):
             if temp != 'err':
                 self.labels[i]["text"] = f"T{i + 1}: {temp:.1f}"
@@ -81,31 +79,90 @@ class DiagramWidget(QtWidgets.QWidget):
                 self.labels[i]["text"] = f"T{i + 1}: --"
         
         self.update()
-
-
+        self.repaint()
+"""
+        
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1197, 565)
         self.colors = [(183, 101, 224), (93, 131, 212), (49, 205, 222), (36, 214, 75), (214, 125, 36) ,(230, 78, 192), (209, 84, 65), (0, 184, 245)]
-        self.centralwidget = DiagramWidget(MainWindow)
+        #self.centralwidget = DiagramWidget(MainWindow)
+        self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName("verticalLayout")
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
-        
-        self.DiagramWidget = DiagramWidget(self.centralwidget)
+
+
+        #to contian diagram and labels
+        self.DiagramWidget = QtWidgets.QWidget(self.centralwidget)
+        self.DiagramWidget.setFixedSize(250, 565)
+        self.DiagramLayout = QtWidgets.QStackedLayout(self.DiagramWidget)
+
+        self.imageLabel = QtWidgets.QLabel()
+        pixmap = QPixmap("diagram.png")
+        pixmap = pixmap.scaled(250, 565)
+        self.imageLabel.setPixmap(pixmap)
+        self.imageLabel.setGeometry(0, 0, 250, 565)
+
+        self.DiagramLayout.addWidget(self.imageLabel)
+        self.labels = []
+        for i in range(8):
+            label = QtWidgets.QLabel(self.DiagramWidget)
+            label.setText(f"T{i+1}")
+            label.setStyleSheet(f"font-weight: bold; font-size: 16px; color: white ; background-color: rgb{self.colors[i]}; border: 1px solid black;")
+            label.setFixedSize(60, 20)
+            #label.move(i*20, i*20)
+            self.labels.append(label)
+            
+        self.labels[0].move(5,495)  #T1
+        self.labels[1].move(35,460)  #T2
+        self.labels[2].move(60,400)  #T3
+        self.labels[3].move(160,300) #T4
+        self.labels[4].move(55,280)  #T5
+        self.labels[5].move(165,230) #T6
+        self.labels[6].move(160,160) #T7
+        self.labels[7].move(75,56)   #T8
+        self.horizontalLayout.addWidget(self.DiagramWidget)
+        """
+        #Diagram widget added
+        #self.DiagramWidget = DiagramWidget(self.centralwidget)
+        self.DiagramWidget = QtWidgets.QLabel(self.centralwidget)
         self.DiagramWidget.setMaximumSize(QtCore.QSize(250, 565))
         self.DiagramWidget.setObjectName("DiagramWidget")
         self.horizontalLayout.addWidget(self.DiagramWidget)
 
+        
+        self.imageLabel = QtWidgets.QLabel()
+        pixmap = QPixmap("diagram.png")
+        pixmap = pixmap.scaled(250, 565)
+        self.imageLabel.setPixmap(pixmap)
+        #self.imageLabel.setScaledContents(True) #fixed size for diagram image
+        self.horizontalLayout.addWidget(self.imageLabel)
+        
+        self.labels=[]
+                
+        for i in range(8):
+            self.label = QtWidgets.QLabel(self.DiagramWidget)
+            self.label.setGeometry(QtCore.QRect(30, 150, 60, 16))
+            self.label.setObjectName(f"T{i+1}")
+            self.label.setStyleSheet(f"color: white; background-color: rgb{self.colors[i]}; border: 1px solid black;")
+            
+            self.horizontalLayout.addWidget(self.label)
+            self.labels.append(self.label)
 
+        self.horizontalLayout.addWidget(self.DiagramWidget)
+        self.labels[1].move(100,100)
+
+        """
+        """
         spacerWidth = 300
         spacerItem = QtWidgets.QSpacerItem(spacerWidth, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
         #spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
-                                        
+        """                             
                        
         self.graphWidget = PlotWidget(self.centralwidget)
         self.graphWidget.setMinimumSize(QtCore.QSize(348, 0))
@@ -136,16 +193,18 @@ class Ui_MainWindow(object):
         self.verticalLayout_4 = QtWidgets.QVBoxLayout()
         self.verticalLayout_4.setObjectName("verticalLayout_4")
 
+        """
         self.labels = []
         for i in range(8):
             self.label = QtWidgets.QLabel(self.centralwidget)
             self.label.setGeometry(QtCore.QRect(30, 150, 60, 16))
             self.label.setObjectName(f"T{i+1}")
             self.verticalLayout_4.addWidget(self.label)
-            self.labels.append(self.label)
             self.label.setStyleSheet(f"color: white; background-color: rgb{self.colors[i]}; border: 1px solid black;")
+            self.labels.append(self.label)
 
-       
+        self.labels[0].move(100, 100)
+        """
         self.verticalLayout_2.addLayout(self.verticalLayout_4)
         self.horizontalLayout.addLayout(self.verticalLayout_2)
         self.verticalLayout.addLayout(self.horizontalLayout)
@@ -186,15 +245,17 @@ class Ui_MainWindow(object):
     @pyqtSlot(float, tuple)
     def updateData(self, current_time, temperatures):
         # update temp on one that is checked
+        
         for i in range(8):
             if self.checkboxes[i].isChecked():
                 if temperatures[i] != 'err':
                     self.labels[i].setText(f"T{i + 1}: {temperatures[i]:.1f}")
+                    
                 else:
                     self.labels[i].setText(f"T{i + 1}: --")
             else:
                 self.labels[i].setText(f"T{i + 1}: --")
-
+        
         active_ch = tuple(temperatures[i] if self.checkboxes[i].isChecked() else np.nan for i in range(8))
         self.model.appendData(current_time, *active_ch)
         #add plots...using data stored in PurifierModel
