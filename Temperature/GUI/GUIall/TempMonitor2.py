@@ -20,10 +20,13 @@ from PyQt5.QtSerialPort import QSerialPort, QSerialPortInfo
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
+#https://realpython.com/python-pyqt-qthread/
+#https://www.pythonguis.com/tutorials/multithreading-pyqt-applications-qthreadpool/
 
 class Worker(QThread):
     result = pyqtSignal(float, tuple)
-    
+
+    #start serial com
     def __init__(self):
         super().__init__()
         self.ser = serial.Serial('/dev/cu.usbserial-110', 38400, timeout=10)
@@ -31,25 +34,6 @@ class Worker(QThread):
         logging.info("Serial Start")
         #self.start_time = None
     
-
-    """
-    def __init__(self):
-        super().__init__()
-        self.ser = QSerialPort()
-        port_name = '/dev/cu.usbserial-110'
-        self.ser.setPortName(port_name)
-        self.ser.setBaudRate(QSerialPort.Baud38400)
-        self.ser.setDataBits(QSerialPort.Data8)
-        self.ser.setParity(QSerialPort.NoParity)
-        self.ser.setStopBits(QSerialPort.OneStop)
-        self.ser.setFlowControl(QSerialPort.NoFlowControl)
-        if not self.ser.open(QSerialPort.ReadWrite):
-            print(f"Failed to open serial port {port_name}")
-            return
-        self.is_running = True
-        logging.info("Serial Start")
-        #self.start_time = None
-    """
     def run(self):
         try:
             hex_data = [0x01, 0x16, 0x7B, 0x28, 0x48, 0x4C, 0x45, 0x48, 0x54, 0x43, 0x34, 0x30, 0x39, 0x35, 0x67, 0x71, 0x29, 0x7D, 0x7E, 0x04]
@@ -79,31 +63,6 @@ class Worker(QThread):
             self.ser.close()
             logging.info("Serial stop")
 
-    """
-    def run(self):
-        try:
-            hex_data = [0x01, 0x16, 0x7B, 0x28, 0x48, 0x4C, 0x45, 0x48, 0x54, 0x43, 0x34, 0x30, 0x39, 0x35, 0x67, 0x71, 0x29,0x7D, 0x7E, 0x04]
-            byte_data = bytearray(hex_data)
-            while self.is_running:
-                if self.ser.write(byte_data) == -1:
-                    logging.warning("Failed to write to serial port")
-                    continue
-                if self.ser.waitForReadyRead(2000):
-                    response = self.ser.readAll()
-                    if response:
-                        response_hex = response.toHex().data().decode()
-                        temperatures = parse_temp(response)
-                        current_time = time.time()
-                        logging.info(f"Time: {current_time}, Temperatures: {temperatures}")
-                        self.result.emit(current_time, temperatures)
-                    else:
-                        logging.warning("No response")
-        except Exception as e:
-            logging.error(f"Error: {e}")
-        finally:
-            self.ser.close()
-            logging.info("Serial stop")
-    """
     def stop(self):
         self.is_running = False
         self.ser.close()
@@ -112,7 +71,7 @@ class Worker(QThread):
 def hex_dec(T_hex):
     try:
         T_val = int(T_hex, 16)
-        T_max = 18000  # 1800C is max, use as threshold to check that the hex is neg
+        T_max = 18000  # 1800C is max (from Omega data sheet), use as threshold to check that the hex is neg
         hex_max = 0xFFFF  # FFFF max
         if T_val > T_max:
             T = -(hex_max - T_val + 1) / 10  # handling negative value
@@ -152,7 +111,6 @@ class PurifierModel(QObject):
 
     def reset(self):
         self.data = []
-
         return None
 
     dataChanged = pyqtSignal()
@@ -163,10 +121,10 @@ class MainWindow(QMainWindow):
         self.worker = None
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-
+        #connect buttons to functions
         self.ui.startStopButton.pressed.connect(self.toggleRun)
         self.ui.clearButton.pressed.connect(self.clearPlot)
-
+        
         self.ui.actionSave.triggered.connect(self.savefile)
         
         self.model = PurifierModel()
@@ -202,22 +160,17 @@ class MainWindow(QMainWindow):
         if self.worker:
             self.worker.stop()
             self.worker = None
-    
+    #**need fixing
     def clearPlot(self):
         self.model.reset()
         self.plotLines = []
-        
-        #for i in range(8):
-        #    plot_line = self.ui.graphWidget.plot(self.time, self.data[i], pen=pg.mkPen(color=self.colors[i], width=2))
-        #    self.plotLines.append(plot_line)
-        #self.ui.graphWidget.plot(self.time, self.data[i], pen=pg.mkPen(color=colors[i], width=2))
-        #self.ui.clearButton.setEnabled(False)
 
     def savefile(self):
         now = dt.now()
         self.filename = "temp_log_"+str(now.strftime('%Y%m%d%H%M'))+".csv"
         print(f"Saved to {self.filename}")
 
+    #slot: to get from signal where time and temperatures are (float, tuple) types must match
     @pyqtSlot(float, tuple)
     def updateData(self, current_time, temperatures):
         # update temp on one that is checked
@@ -229,30 +182,26 @@ class MainWindow(QMainWindow):
                     self.ui.labels[i].setText(f"T{i + 1}: {temperatures[i]:.1f}")
             else:
                 self.ui.labels[i].setText(f"T{i + 1}: --")
+       
+        #need fixing, separate data storage from plotting? in case we need to save data still but doesn't need to show plots
         #store data to PurifierModel only for checked boxes, for inactive channels, just put nan so nothing is being append to the model (not saving those data)
-        
         active_ch = tuple(temperatures[i] if self.ui.checkboxes[i].isChecked() else np.nan for i in range(8))
         self.model.appendData(current_time, *active_ch)
+
         #active_ch = tuple(temperatures[i] for i in range(8))
         #self.model.appendData(current_time, *active_ch) 
         #add plots...using data stored in PurifierModel
         self.time.append(current_time)
         
-        #self.time.append(self.model.lenData())
-    
         for i in range(8):
             #plot the active channels
             if self.ui.checkboxes[i].isChecked():
                 self.data[i].append(temperatures[i])
                 self.plotLines[i].setData(self.time, self.data[i])
             else:
-                #self.data[i].append(np.nan)
-                self.data[i].append(temperatures[i])
-        """
-        for i in range(8):
-             self.data[i].append(temperatures[i])
-             self.plotLines[i].setData(self.time, self.data[i])
-        """
+                #self.data[i].append(np.nan) #remove this, unless no data is stored
+                self.data[i].append(temperatures[i]) #store data but just not showing plot
+
 app = QApplication(sys.argv)
 window = MainWindow()
 window.show()
