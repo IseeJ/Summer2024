@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QModelIndex, QObject, QPoint
 from PyQt5.QtGui import QPixmap, QPainter, QColor, QFont, QImage
 from pyqtgraph import PlotWidget
-
+from PyQt5.QtWidgets import*
 
 """
 class DiagramWidget(QtWidgets.QWidget):
@@ -94,9 +94,50 @@ class Ui_MainWindow(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
+        
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
 
 
-        #to contian diagram and labels
+
+        self.ComboBox_1 = QtWidgets.QComboBox(self.centralwidget)
+        self.ComboBox_1.setObjectName("ComboBox_1")
+        self.horizontalLayout_2.addWidget(self.ComboBox_1)
+
+        self.refreshButton = QtWidgets.QPushButton(self.centralwidget)
+        self.refreshButton.setObjectName("refreshButton")
+        self.refreshButton.setText("Refresh")
+        self.horizontalLayout_2.addWidget(self.refreshButton)
+
+        self.ConnectButton = QtWidgets.QPushButton(self.centralwidget)
+        self.ConnectButton.setObjectName("ConnectButton")
+        self.ConnectButton.setText("Connect")
+        self.horizontalLayout_2.addWidget(self.ConnectButton)
+
+        """
+        self.label_2 = QtWidgets.QLabel(self.centralwidget)
+        self.label_2.setObjectName("label_2")
+        self.horizontalLayout_2.addWidget(self.label_2)
+        self.pushButton = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton.setObjectName("pushButton")
+        self.horizontalLayout_2.addWidget(self.pushButton)
+        """
+        
+        self.LogButton = QtWidgets.QPushButton(self.centralwidget)
+        self.LogButton.setObjectName("LogButton")
+        self.LogButton.setText("Log to file")
+        self.horizontalLayout_2.addWidget(self.LogButton)
+        #self.LogButton.setMaximumSize(QtCore.QSize(100, 16777215))
+        self.fileLabel = QtWidgets.QPushButton(self.centralwidget)
+        self.fileLabel.setObjectName("fileLabel")
+        self.fileLabel.setText("Data log directory")
+        #self.fileLabel.setMaximumSize(QtCore.QSize(100, 500))
+        self.horizontalLayout_2.addWidget(self.fileLabel)
+
+        
+        self.verticalLayout.addLayout(self.horizontalLayout_2)
+        
+        #to contain diagram and labels
         self.DiagramWidget = QtWidgets.QWidget(self.centralwidget)
         self.DiagramWidget.setFixedSize(250, 565)
         self.DiagramLayout = QtWidgets.QStackedLayout(self.DiagramWidget)
@@ -190,6 +231,26 @@ class Ui_MainWindow(object):
         self.clearButton.setMaximumSize(QtCore.QSize(100, 16777215))
         self.clearButton.setObjectName("clearButton")
         self.verticalLayout_2.addWidget(self.clearButton)
+
+        """"
+        self.serialPortInput = QtWidgets.QLineEdit(self.centralwidget)
+        self.serialPortInput.setObjectName("serialPortInput")
+        self.serialPortInput.setPlaceholderText("Enter Serial Port")
+        self.verticalLayout_2.addWidget(self.serialPortInput)
+        """
+        """
+        self.LogButton = QtWidgets.QPushButton(self.centralwidget)
+        self.LogButton.setObjectName("LogButton")
+        self.LogButton.setText("Log to file")
+        self.verticalLayout_2.addWidget(self.LogButton)
+        self.LogButton.setMaximumSize(QtCore.QSize(100, 16777215))
+        self.fileLabel = QtWidgets.QPushButton(self.centralwidget)
+        self.fileLabel.setObjectName("fileLabel")
+        self.fileLabel.setText("Data log directory")
+        self.fileLabel.setMaximumSize(QtCore.QSize(100, 500))
+        self.verticalLayout_2.addWidget(self.fileLabel)
+        """
+
         self.verticalLayout_4 = QtWidgets.QVBoxLayout()
         self.verticalLayout_4.setObjectName("verticalLayout_4")
 
