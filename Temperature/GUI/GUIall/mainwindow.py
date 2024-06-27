@@ -85,7 +85,7 @@ class DiagramWidget(QtWidgets.QWidget):
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1197, 565)
+        MainWindow.resize(1200, 600)
         self.colors = [(183, 101, 224), (93, 131, 212), (49, 205, 222), (36, 214, 75), (214, 125, 36) ,(230, 78, 192), (209, 84, 65), (0, 184, 245)]
         #self.centralwidget = DiagramWidget(MainWindow)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -114,6 +114,16 @@ class Ui_MainWindow(object):
         self.ConnectButton.setText("Connect")
         self.horizontalLayout_2.addWidget(self.ConnectButton)
 
+        self.saveDirectoryButton = QtWidgets.QPushButton(self.centralwidget)
+        self.saveDirectoryButton.setObjectName("saveDirectoryButton")
+        self.saveDirectoryButton.setText("File Directory")
+        self.horizontalLayout_2.addWidget(self.saveDirectoryButton)
+
+        """
+        self.saveDirectoryLabel = QtWidgets.QLabel(self.centralwidget)
+        self.saveDirectoryLabel.setObjectName("saveDirectoryLabel")
+        self.horizontalLayout_2.addWidget(self.saveDirectoryLabel)
+        """
         """
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
         self.label_2.setObjectName("label_2")
@@ -128,9 +138,8 @@ class Ui_MainWindow(object):
         self.LogButton.setText("Log to file")
         self.horizontalLayout_2.addWidget(self.LogButton)
         #self.LogButton.setMaximumSize(QtCore.QSize(100, 16777215))
-        self.fileLabel = QtWidgets.QPushButton(self.centralwidget)
+        self.fileLabel = QtWidgets.QLabel(self.centralwidget)
         self.fileLabel.setObjectName("fileLabel")
-        self.fileLabel.setText("Data log directory")
         #self.fileLabel.setMaximumSize(QtCore.QSize(100, 500))
         self.horizontalLayout_2.addWidget(self.fileLabel)
 
@@ -138,15 +147,17 @@ class Ui_MainWindow(object):
         self.verticalLayout.addLayout(self.horizontalLayout_2)
         
         #to contain diagram and labels
+        width = 308
+        height = 700
         self.DiagramWidget = QtWidgets.QWidget(self.centralwidget)
-        self.DiagramWidget.setFixedSize(250, 565)
+        self.DiagramWidget.setFixedSize(width, height)
         self.DiagramLayout = QtWidgets.QStackedLayout(self.DiagramWidget)
 
         self.imageLabel = QtWidgets.QLabel()
         pixmap = QPixmap("diagram.png")
-        pixmap = pixmap.scaled(250, 565)
+        pixmap = pixmap.scaled(width, height)
         self.imageLabel.setPixmap(pixmap)
-        self.imageLabel.setGeometry(0, 0, 250, 565)
+        self.imageLabel.setGeometry(0, 0, width, height)
 
         self.DiagramLayout.addWidget(self.imageLabel)
         self.labels = []
@@ -158,14 +169,14 @@ class Ui_MainWindow(object):
             #label.move(i*20, i*20)
             self.labels.append(label)
             
-        self.labels[0].move(5,495)  #T1
-        self.labels[1].move(35,460)  #T2
-        self.labels[2].move(60,400)  #T3
-        self.labels[3].move(160,300) #T4
-        self.labels[4].move(55,280)  #T5
-        self.labels[5].move(165,230) #T6
-        self.labels[6].move(160,160) #T7
-        self.labels[7].move(75,56)   #T8
+        self.labels[0].move(int(0.02*width),int(0.88*height))  #T1
+        self.labels[1].move(int(0.14*width),int(0.80*height))  #T2
+        self.labels[2].move(int(0.24*width),int(0.71*height))  #T3
+        self.labels[3].move(int(0.64*width),int(0.53*height)) #T4
+        self.labels[4].move(int(0.22*width),int(0.48*height))  #T5
+        self.labels[5].move(int(0.66*width),int(0.41*height)) #T6
+        self.labels[6].move(int(0.64*width),int(0.28*height)) #T7
+        self.labels[7].move(int(0.3*width),int(0.1*height))   #T8
         self.horizontalLayout.addWidget(self.DiagramWidget)
         """
         #Diagram widget added

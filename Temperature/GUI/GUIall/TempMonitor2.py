@@ -133,6 +133,8 @@ class MainWindow(QMainWindow):
         self.ui.ConnectButton.pressed.connect(self.applySerialPort)
         self.ui.refreshButton.pressed.connect(self.refreshSerialPorts)
 
+        self.ui.saveDirectoryButton.pressed.connect(self.chooseSaveDirectory)
+
         
         self.model = PurifierModel()
         self.initGraph()
@@ -140,12 +142,12 @@ class MainWindow(QMainWindow):
 
         self.filename = None
         self.serialPort = None
-        
+        self.saveDirectory = None
     #log file while running
     def initFile(self):
         now = dt.now()
         self.filename = "temp_log_" + str(now.strftime('%Y%m%d%H%M')) + ".csv"
-        with open(self.filename, 'w', newline='') as file:
+        with open(f"{self.saveDirectory}/{self.filename}", 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(['Time', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8'])
 
@@ -197,8 +199,12 @@ class MainWindow(QMainWindow):
 
     def startLogging(self):
         self.initFile()
-        self.ui.fileLabel.setText(f"Writing to: {self.filename}")
-
+        """
+        self.saveDirectory = QFileDialog.getExistingDirectory(self, "Choose Save Directory")
+        if self.saveDirectory:
+            self.ui.fileLabel.setText(f"Writing to: {self.saveDirectory}/{self.filename}")
+        """
+        self.ui.fileLabel.setText(f"{self.saveDirectory}/{self.filename}")
     #get serial Port
     def applySerialPort(self):
         self.serialPort = self.ui.ComboBox_1.currentText()
@@ -210,10 +216,18 @@ class MainWindow(QMainWindow):
         for port in ports:
             self.ui.ComboBox_1.addItem(port.portName())
 
+
+    def chooseSaveDirectory(self):
+        self.saveDirectory = QFileDialog.getExistingDirectory(self, "Save Directory")
+        if self.saveDirectory:
+            self.ui.fileLabel.setText(f"{self.saveDirectory}")
             
     #slot: to get from signal where time and temperatures are (float, tuple) types must match
+    """
     @pyqtSlot(float, tuple)
     def updateData(self, current_time, temperatures):
+        formattime = dt.fromtimestamp(current_time)
+        time_str = formattime.strftime('%H:%M:%S')
         # update temp on one that is checked
         for i in range(8):
             if self.ui.checkboxes[i].isChecked():
@@ -245,6 +259,29 @@ class MainWindow(QMainWindow):
 
 
         self.LogData(current_time, temperatures)
+    """
+    @pyqtSlot(float, tuple)
+    def updateData(self, current_time, temperatures):
+        #formattime to hr:mm:ss
+        formattime = dt.fromtimestamp(float(current_time)).strftime('%H:%M:%S')
+
+        for i in range(8):
+            if temperatures[i] != 'err':
+                self.ui.labels[i].setText(f"T{i + 1}: {temperatures[i]:.1f}")
+            else:
+                self.ui.labels[i].setText(f"T{i + 1}: err")
+
+        self.model.appendData(formattime, *temperatures)
+        self.time.append(formattime)
+        for i in range(8):
+            if self.ui.checkboxes[i].isChecked():
+                self.data[i].append(temperatures[i])
+            else:
+                self.data[i].append(np.nan)
+            self.plotLines[i].setData(self.time, self.data[i] if self.ui.checkboxes[i].isChecked() else [])
+
+        #refresh view
+        self.ui.graphWidget.setXRange(self.time[0], self.time[-1], padding=0.1)
 
     def LogData(self, current_time, temperatures):
         with open(self.filename, 'a', newline='') as file:
