@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import * 
 import pyqtgraph as pg
 from pyqtgraph import PlotWidget, AxisItem
+from serial import SerialException
 
 from mainwindow import Ui_MainWindow
 from PyQt5.QtSerialPort import QSerialPort, QSerialPortInfo
@@ -165,12 +166,18 @@ class MainWindow(QMainWindow):
 
     def startRun(self):
         if self.serialPort is None:
-            QMessageBox.warning(self, "Warning", "No serial port selected")
+            QMessageBox.warning(self, "Warning", "Please select serial port")
             return
-        self.worker = Worker(self.serialPort)
-        self.worker.result.connect(self.updateData)
-        self.worker.start()
-        logging.info("Start serial")
+        try:
+            self.worker = Worker(self.serialPort)
+            self.worker.result.connect(self.updateData)
+            self.worker.start()
+            logging.info("Start serial")
+        except serial.SerialException as e:
+            QMessageBox.critical(self, "Error", f"Can't open serial port: {e}")
+            logging.error(f"Can't open serial port: {e}")
+            self.worker = None
+
 
     def stopRun(self):
         if self.worker:
