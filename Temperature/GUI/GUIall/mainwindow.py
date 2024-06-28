@@ -321,7 +321,7 @@ class Ui_MainWindow(object):
         for i in range(8):
             if self.checkboxes[i].isChecked():
                 if temperatures[i] != 'err':
-                    self.labels[i].setText(f"T{i + 1}: {temperatures[i]:.1f}")
+                    self.labels[i].setText(f"T{i + 1}: {temperatures[i]}")
                     
                 else:
                     self.labels[i].setText(f"T{i + 1}: --")
