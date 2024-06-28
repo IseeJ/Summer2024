@@ -12,6 +12,7 @@ import pyqtgraph as pg
 from pyqtgraph import PlotWidget, AxisItem
 from serial import SerialException
 
+import random
 from mainwindow import Ui_MainWindow
 from PyQt5.QtSerialPort import QSerialPort, QSerialPortInfo
 
@@ -49,8 +50,8 @@ class Worker(QThread):
                         current_time = str(dt.now().strftime('%H:%M:%S'))  
                         logging.info(f"Time: {current_time}, Temperatures: {temperatures}")
                         self.result.emit(current_time, temperatures)
-                    else:
-                        logging.warning("No response")
+                else:
+                    logging.warning("No response")
         except serial.SerialException as e:
             logging.error(f"Serial error: {e}")
         finally:
@@ -78,6 +79,13 @@ def hex_dec(T_hex):
     except ValueError:
         return 'err'
 
+
+def dummy_temp():
+    temperatures = []
+    for i in range(8):
+        temperatures.append(random.random())
+    return tuple(temperatures)
+        
 def parse_temp(response):
     response_hex = response.hex()
     if len(response_hex) < 72:
@@ -124,7 +132,7 @@ class MainWindow(QMainWindow):
         self.ui.startStopButton.pressed.connect(self.toggleRun)
         self.ui.clearButton.pressed.connect(self.clearPlot)
         self.ui.LogButton.pressed.connect(self.startLogging)
-        self.ui.ConnectButton.pressed.connect(self.applySerialPort)
+        #self.ui.ConnectButton.pressed.connect(self.applySerialPort)
         self.ui.refreshButton.pressed.connect(self.refreshSerialPorts)
         self.ui.saveDirectoryButton.pressed.connect(self.chooseSaveDirectory)
         self.model = PurifierModel()
@@ -165,6 +173,12 @@ class MainWindow(QMainWindow):
             self.startRun()
 
     def startRun(self):
+        self.serialPort = self.ui.ComboBox_1.currentText()
+        if 'COM' not in self.serialPort:
+            self.serialPort = "/dev/" + self.ui.ComboBox_1.currentText()
+
+        logging.info(f"Connected to: {self.serialPort}")
+        
         if self.serialPort is None:
             QMessageBox.warning(self, "Warning", "Please select serial port")
             return
@@ -172,7 +186,7 @@ class MainWindow(QMainWindow):
             self.worker = Worker(self.serialPort)
             self.worker.result.connect(self.updateData)
             self.worker.start()
-            logging.info("Start serial")
+            logging.info("Start worker")
         except serial.SerialException as e:
             QMessageBox.critical(self, "Error", f"Could not open serial port: {e}")
             logging.error(f"Could not open serial port: {e}")
@@ -195,10 +209,12 @@ class MainWindow(QMainWindow):
         self.initFile()
         self.ui.fileLabel.setText(f"{self.saveDirectory}/{self.filename}")
 
+    """
     def applySerialPort(self):
         self.serialPort = "/dev/" + self.ui.ComboBox_1.currentText()
         logging.info(f"Connected to: {self.serialPort}")
-
+    """
+    
     def refreshSerialPorts(self):
         self.ui.ComboBox_1.clear()
         ports = QSerialPortInfo.availablePorts()

@@ -14,74 +14,6 @@ from PyQt5.QtGui import QPixmap, QPainter, QColor, QFont, QImage
 from pyqtgraph import PlotWidget
 from PyQt5.QtWidgets import*
 
-"""
-class DiagramWidget(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.image = QImage("diagram.png")
-        self.image = self.image.scaled(250, 565, QtCore.Qt.KeepAspectRatio) 
-
-        #self.labels = [(50, 50, "Label1"), (150, 150, "Label2"), (100, 300, "Label3")]
-        self.labels = [QtWidgets.QLabel(f"T{i + 1}: --") for i in range(8)]
-        self.colors = [(183, 101, 224), (93, 131, 212), (49, 205, 222), (36, 214, 75),
-                       (214, 125, 36), (230, 78, 192), (209, 84, 65), (0, 184, 245)]
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        #center img
-        y0 = (self.height() - self.image.height()) // 2
-        painter.drawImage(QPoint(0, y0), self.image)
-        #painter.drawImage(QPoint(0, 0), self.image)
-        for i, (x, y, text) in enumerate(self.labels):
-            painter.setPen(QColor(*self.colors[i % len(self.colors)]))
-            painter.setFont(QFont("Arial", 12, QFont.Bold))
-            painter.drawText(x, y0+y, text)
-
-
-
-class DiagramWidget(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.image = QImage("diagram.png")
-        self.image = self.image.scaled(250, 565, QtCore.Qt.KeepAspectRatio)
-        self.labels = [
-            {"text": f"T1: --", "position": (50, 50)},
-            {"text": f"T2: --", "position": (150, 150)},
-            {"text": f"T3: --", "position": (100, 300)},
-            {"text": f"T4: --", "position": (200, 100)},
-            {"text": f"T5: --", "position": (50, 200)},
-            {"text": f"T6: --", "position": (150, 400)},
-            {"text": f"T7: --", "position": (200, 300)},
-            {"text": f"T8: --", "position": (100, 400)}
-        ]
-
-        self.colors = [(183, 101, 224), (93, 131, 212), (49, 205, 222), (36, 214, 75), (214, 125, 36), (230, 78, 192), (209, 84, 65), (0, 184, 245)]
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        y0 = (self.height() - self.image.height()) // 2
-        painter.drawImage(QPoint(0, y0), self.image)
-        
-        for label_data in self.labels:
-            x, y = label_data["position"]
-            text = label_data["text"]
-            
-            painter.setPen(QColor(*self.colors[self.labels.index(label_data) % len(self.colors)]))
-            painter.setFont(QFont("Arial", 12, QFont.Bold))
-            painter.drawText(x, y0 + y, text)
-
-    @pyqtSlot(float, tuple)
-    def updateData(self, current_time, temperatures):
-        for i, temp in enumerate(temperatures):
-            if temp != 'err':
-                self.labels[i]["text"] = f"T{i + 1}: {temp:.1f}"
-            else:
-                self.labels[i]["text"] = f"T{i + 1}: --"
-        
-        self.update()
-        self.repaint()
-"""
-        
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -109,30 +41,18 @@ class Ui_MainWindow(object):
         self.refreshButton.setText("Refresh")
         self.horizontalLayout_2.addWidget(self.refreshButton)
 
+        """
         self.ConnectButton = QtWidgets.QPushButton(self.centralwidget)
         self.ConnectButton.setObjectName("ConnectButton")
         self.ConnectButton.setText("Connect")
         self.horizontalLayout_2.addWidget(self.ConnectButton)
-
+        """
+        
         self.saveDirectoryButton = QtWidgets.QPushButton(self.centralwidget)
         self.saveDirectoryButton.setObjectName("saveDirectoryButton")
         self.saveDirectoryButton.setText("File Directory")
         self.horizontalLayout_2.addWidget(self.saveDirectoryButton)
 
-        """
-        self.saveDirectoryLabel = QtWidgets.QLabel(self.centralwidget)
-        self.saveDirectoryLabel.setObjectName("saveDirectoryLabel")
-        self.horizontalLayout_2.addWidget(self.saveDirectoryLabel)
-        """
-        """
-        self.label_2 = QtWidgets.QLabel(self.centralwidget)
-        self.label_2.setObjectName("label_2")
-        self.horizontalLayout_2.addWidget(self.label_2)
-        self.pushButton = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton.setObjectName("pushButton")
-        self.horizontalLayout_2.addWidget(self.pushButton)
-        """
-        
         self.LogButton = QtWidgets.QPushButton(self.centralwidget)
         self.LogButton.setObjectName("LogButton")
         self.LogButton.setText("Log to file")
@@ -178,37 +98,7 @@ class Ui_MainWindow(object):
         self.labels[6].move(int(0.64*width),int(0.28*height)) #T7
         self.labels[7].move(int(0.3*width),int(0.1*height))   #T8
         self.horizontalLayout.addWidget(self.DiagramWidget)
-        """
-        #Diagram widget added
-        #self.DiagramWidget = DiagramWidget(self.centralwidget)
-        self.DiagramWidget = QtWidgets.QLabel(self.centralwidget)
-        self.DiagramWidget.setMaximumSize(QtCore.QSize(250, 565))
-        self.DiagramWidget.setObjectName("DiagramWidget")
-        self.horizontalLayout.addWidget(self.DiagramWidget)
 
-        
-        self.imageLabel = QtWidgets.QLabel()
-        pixmap = QPixmap("diagram.png")
-        pixmap = pixmap.scaled(250, 565)
-        self.imageLabel.setPixmap(pixmap)
-        #self.imageLabel.setScaledContents(True) #fixed size for diagram image
-        self.horizontalLayout.addWidget(self.imageLabel)
-        
-        self.labels=[]
-                
-        for i in range(8):
-            self.label = QtWidgets.QLabel(self.DiagramWidget)
-            self.label.setGeometry(QtCore.QRect(30, 150, 60, 16))
-            self.label.setObjectName(f"T{i+1}")
-            self.label.setStyleSheet(f"color: white; background-color: rgb{self.colors[i]}; border: 1px solid black;")
-            
-            self.horizontalLayout.addWidget(self.label)
-            self.labels.append(self.label)
-
-        self.horizontalLayout.addWidget(self.DiagramWidget)
-        self.labels[1].move(100,100)
-
-        """
         """
         spacerWidth = 300
         spacerItem = QtWidgets.QSpacerItem(spacerWidth, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
@@ -243,24 +133,7 @@ class Ui_MainWindow(object):
         self.clearButton.setObjectName("clearButton")
         self.verticalLayout_2.addWidget(self.clearButton)
 
-        """"
-        self.serialPortInput = QtWidgets.QLineEdit(self.centralwidget)
-        self.serialPortInput.setObjectName("serialPortInput")
-        self.serialPortInput.setPlaceholderText("Enter Serial Port")
-        self.verticalLayout_2.addWidget(self.serialPortInput)
-        """
-        """
-        self.LogButton = QtWidgets.QPushButton(self.centralwidget)
-        self.LogButton.setObjectName("LogButton")
-        self.LogButton.setText("Log to file")
-        self.verticalLayout_2.addWidget(self.LogButton)
-        self.LogButton.setMaximumSize(QtCore.QSize(100, 16777215))
-        self.fileLabel = QtWidgets.QPushButton(self.centralwidget)
-        self.fileLabel.setObjectName("fileLabel")
-        self.fileLabel.setText("Data log directory")
-        self.fileLabel.setMaximumSize(QtCore.QSize(100, 500))
-        self.verticalLayout_2.addWidget(self.fileLabel)
-        """
+
 
         self.verticalLayout_4 = QtWidgets.QVBoxLayout()
         self.verticalLayout_4.setObjectName("verticalLayout_4")
