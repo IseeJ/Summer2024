@@ -84,19 +84,19 @@ class Ui_MainWindow(object):
         for i in range(8):
             label = QtWidgets.QLabel(self.DiagramWidget)
             label.setText(f"T{i+1}")
-            label.setStyleSheet(f"font-weight: bold; font-size: 12px; color: white ; background-color: rgb{self.colors[i]}; border: 1px solid black;")
-            label.setFixedSize(60, 20)
+            label.setStyleSheet(f"font-weight: bold; font-size: 14px; color: white ; background-color: rgb{self.colors[i]}; border: 1px solid black;")
+            label.setFixedSize(80, 40)
             #label.move(i*20, i*20)
             self.labels.append(label)
             
         self.labels[0].move(int(0.02*width),int(0.88*height))  #T1
         self.labels[1].move(int(0.14*width),int(0.80*height))  #T2
         self.labels[2].move(int(0.24*width),int(0.71*height))  #T3
-        self.labels[3].move(int(0.64*width),int(0.53*height)) #T4
-        self.labels[4].move(int(0.22*width),int(0.48*height))  #T5
+        self.labels[3].move(int(0.64*width),int(0.55*height)) #T4
+        self.labels[4].move(int(0.20*width),int(0.46*height))  #T5
         self.labels[5].move(int(0.66*width),int(0.41*height)) #T6
         self.labels[6].move(int(0.64*width),int(0.28*height)) #T7
-        self.labels[7].move(int(0.3*width),int(0.1*height))   #T8
+        self.labels[7].move(int(0.26*width),int(0.1*height))   #T8
         self.horizontalLayout.addWidget(self.DiagramWidget)
 
         """
@@ -108,9 +108,8 @@ class Ui_MainWindow(object):
                        
         self.graphWidget = PlotWidget(self.centralwidget)
         self.graphWidget.setMinimumSize(QtCore.QSize(348, 0))
-        self.graphWidget.setObjectName("PlotWidget")
-        self.horizontalLayout.addWidget(self.graphWidget)
-
+        self.graphWidget.setObjectName("PlotWidget") 
+        self.horizontalLayout.addWidget(self.graphWidget)        
         
         self.verticalLayout_2 = QtWidgets.QVBoxLayout()
         self.verticalLayout_2.setObjectName("verticalLayout_2")
@@ -174,7 +173,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Todo"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Temperature Monitor"))
 
         for i in range(8):
             self.checkboxes[i].setText(_translate("MainWindow",f"T{i+1}"))

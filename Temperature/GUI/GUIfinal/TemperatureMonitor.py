@@ -9,7 +9,7 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QModelIndex, QObject
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import * 
 import pyqtgraph as pg
-from pyqtgraph import PlotWidget, AxisItem
+from pyqtgraph import PlotWidget, AxisItem, ViewBox
 from serial import SerialException
 
 import random
@@ -23,7 +23,7 @@ class DateAxisItem(AxisItem):
         AxisItem.__init__(self, *args, **kwargs)
 
     def tickStrings(self, values, scale, spacing):
-        return [dt.fromtimestamp(value).strftime("%H:%M:%S") for value in values]
+        return [dt.fromtimestamp(value).strftime("%H:%M:%S\n%Y-%m-%d\n") for value in values]
 
 class Worker(QThread):
     result = pyqtSignal(str, tuple)
@@ -33,9 +33,17 @@ class Worker(QThread):
         self.ser = None
         self.is_running = True
         self.port = port
-        logging.info("Serial Start")
+        logging.info("Starting Serial")
 
     def run(self):
+        """
+        while self.is_running:
+            temperatures = test_temp()
+            current_time = str(dt.now().strftime('%Y%m%dT%H%M%S'))
+            logging.info(f"Time: {current_time}, Temperatures: {temperatures}")
+            time.sleep(5)
+            self.result.emit(current_time, temperatures)
+        """
         try:
             self.ser = serial.Serial(self.port, 38400, timeout=5)
             hex_data = [0x01, 0x16, 0x7B, 0x28, 0x48, 0x4C, 0x45, 0x48, 0x54, 0x43, 0x34, 0x30, 0x39, 0x35, 0x67, 0x71, 0x29, 0x7D, 0x7E, 0x04]
@@ -43,11 +51,12 @@ class Worker(QThread):
             while self.is_running:
                 self.ser.write(byte_data)
                 time.sleep(0.1)
-                if self.ser.in_waiting == 37:
+                #37 bits
+                if self.ser.in_waiting:
                     response = self.ser.readline()
                     if response:
                         temperatures = parse_temp(response)
-                        current_time = str(dt.now().strftime('%H:%M:%S'))  
+                        current_time = str(dt.now().strftime('%Y%m%dT%H%M%S'))  
                         logging.info(f"Time: {current_time}, Temperatures: {temperatures}")
                         self.result.emit(current_time, temperatures)
                 else:
@@ -57,8 +66,7 @@ class Worker(QThread):
         finally:
             if self.ser:
                 self.ser.close()
-            logging.info("Serial stop")
-
+                
     def stop(self):
         self.is_running = False
         if self.ser:
@@ -78,12 +86,10 @@ def hex_dec(T_hex):
         return T
     except ValueError:
         return 'err'
-
-
-def dummy_temp():
+def test_temp():
     temperatures = []
     for i in range(8):
-        temperatures.append(random.random())
+        temperatures.append(random.randint(500, 4000))
     return tuple(temperatures)
         
 def parse_temp(response):
@@ -140,10 +146,10 @@ class MainWindow(QMainWindow):
         self.filename = None
         self.serialPort = None
         self.saveDirectory = None
-
+        
     def initFile(self):
         now = dt.now()
-        self.filename = "temp_log_" + str(now.strftime('%Y%m%d%H%M')) + ".csv"
+        self.filename = "temp_log_" + str(now.strftime('%Y%m%dT%H%M%S')) + ".csv"
         try:
             with open(f"{self.saveDirectory}/{self.filename}", 'w', newline='') as file:
                 writer = csv.writer(file)
@@ -153,7 +159,7 @@ class MainWindow(QMainWindow):
 
     def initGraph(self):
         self.ui.graphWidget.setBackground("w")
-        styles = {"color": "red", "font-size": "18px"}
+        styles = {"color": "black", "font-size": "18px"}
         self.ui.graphWidget.setLabel("left", "Temperature (°C)", **styles)
         self.ui.graphWidget.setLabel("bottom", "Time", **styles)
         self.ui.graphWidget.getAxis('bottom').setStyle(tickTextOffset=10)
@@ -176,28 +182,26 @@ class MainWindow(QMainWindow):
         self.serialPort = self.ui.ComboBox_1.currentText()
         if 'COM' not in self.serialPort:
             self.serialPort = "/dev/" + self.ui.ComboBox_1.currentText()
-
         logging.info(f"Connected to: {self.serialPort}")
         
         if self.serialPort is None:
-            QMessageBox.warning(self, "Warning", "Please select serial port")
+            logging.info(self, "No port selected")
             return
         try:
             self.worker = Worker(self.serialPort)
             self.worker.result.connect(self.updateData)
             self.worker.start()
-            logging.info("Start worker")
+            logging.info("Starting Worker")
         except serial.SerialException as e:
-            QMessageBox.critical(self, "Error", f"Could not open serial port: {e}")
             logging.error(f"Could not open serial port: {e}")
             self.worker = None
-
+    
 
     def stopRun(self):
         if self.worker:
             self.worker.stop()
             self.worker = None
-            logging.info("Stop serial")
+            logging.info("Stopping Serial")
 
     def clearPlot(self):
         self.time = []
@@ -237,7 +241,7 @@ class MainWindow(QMainWindow):
         active_ch = tuple(temperatures[i] if self.ui.checkboxes[i].isChecked() else np.nan for i in range(8))
         self.model.appendData(current_time, *active_ch)
 
-        formattime = dt.strptime(current_time, '%H:%M:%S').timestamp()
+        formattime = dt.strptime(current_time, '%Y%m%dT%H%M%S').timestamp()
         self.time.append(formattime)
 
         for i in range(8):
