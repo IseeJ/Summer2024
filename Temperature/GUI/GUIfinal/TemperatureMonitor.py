@@ -174,8 +174,8 @@ class MainWindow(QMainWindow):
             self.worker.start()
             logging.info("Start serial")
         except serial.SerialException as e:
-            QMessageBox.critical(self, "Error", f"Can't open serial port: {e}")
-            logging.error(f"Can't open serial port: {e}")
+            QMessageBox.critical(self, "Error", f"Could not open serial port: {e}")
+            logging.error(f"Could not open serial port: {e}")
             self.worker = None
 
 
@@ -213,13 +213,10 @@ class MainWindow(QMainWindow):
     @pyqtSlot(str, tuple)
     def updateData(self, current_time, temperatures):
         for i in range(8):
-            if self.ui.checkboxes[i].isChecked():
-                if temperatures[i] != 'err':
-                    self.ui.labels[i].setText(f"T{i + 1}: {temperatures[i]:.1f}")
-                else:
-                    self.ui.labels[i].setText(f"T{i + 1}: {temperatures[i]}")
+            if temperatures[i] != 'err':
+                self.ui.labels[i].setText(f"T{i + 1}: {temperatures[i]:.1f}")
             else:
-                self.ui.labels[i].setText(f"T{i + 1}: --")
+                self.ui.labels[i].setText(f"T{i + 1}: err")
 
         active_ch = tuple(temperatures[i] if self.ui.checkboxes[i].isChecked() else np.nan for i in range(8))
         self.model.appendData(current_time, *active_ch)
@@ -228,11 +225,9 @@ class MainWindow(QMainWindow):
         self.time.append(formattime)
 
         for i in range(8):
+            self.data[i].append(temperatures[i])
             if self.ui.checkboxes[i].isChecked():
-                self.data[i].append(temperatures[i])
                 self.plotLines[i].setData(self.time, self.data[i])
-            else:
-                self.data[i].append(temperatures[i])
 
         if self.filename:
             self.LogData(formattime, temperatures)
