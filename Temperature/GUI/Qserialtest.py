@@ -2,7 +2,7 @@ from PyQt5.QtSerialPort import QSerialPort, QSerialPortInfo
 import time
 
 ser = QSerialPort()
-ser.setPortName('/dev/cu.usbserial-110')
+ser.setPortName('/dev/tty.usbserial-110')
 ser.setBaudRate(QSerialPort.Baud38400)
 
 
