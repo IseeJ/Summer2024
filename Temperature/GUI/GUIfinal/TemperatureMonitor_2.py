@@ -14,7 +14,7 @@ from serial import SerialException
 from pathlib import Path
 
 import random
-from mainwindow import Ui_MainWindow
+from mainwindow_2 import Ui_MainWindow
 from PyQt5.QtSerialPort import QSerialPort, QSerialPortInfo
 
 
@@ -26,21 +26,12 @@ class DateAxisItem(AxisItem):
         AxisItem.__init__(self, *args, **kwargs)
 
     def tickStrings(self, values, scale, spacing):
-        return [dt.fromtimestamp(value).strftime("%H:%M:%S\n%Y-%m-%d\n\n") for value in values]
+        return [dt.fromtimestamp(value).strftime("%H:%M:%S\n%Y-%m-%d\n") for value in values]
 
 class Worker(QThread):
     result = pyqtSignal(str, tuple)
 
-    """
-    def __init__(self, port):
-        super().__init__()
-        self.ser = None
-        self.is_running = True
-        self.port = port
-        print("Starting Serial")
-    """
-    
-    def __init__(self, port, interval):
+    def __init__(self, port,interval):
         super().__init__()
         self.ser = None
         self.is_running = True
@@ -49,7 +40,7 @@ class Worker(QThread):
         print("Starting Serial")
 
     def run(self):
-        """
+        
         while self.is_running:
             temperatures = test_temp()
             current_time = str(dt.now().strftime('%Y%m%dT%H%M%S'))
@@ -72,14 +63,15 @@ class Worker(QThread):
                         current_time = str(dt.now().strftime('%Y%m%dT%H%M%S'))  
                         print(f"Time: {current_time}, Temperatures: {temperatures}")
                         self.result.emit(current_time, temperatures)
-                else:
-                    print("No response")
-                time.sleep(self.interval)  
+                    else:
+                        print("No response")
+                time.sleep(self.interval)
         except serial.SerialException as e:
             print(f"Serial error: {e}")
         finally:
             if self.ser:
                 self.ser.close()
+        """
     def stop(self):
         self.is_running = False
         if self.ser:
@@ -161,7 +153,11 @@ class MainWindow(QMainWindow):
         self.filename = None
         self.serialPort = None
         self.saveDirectory = None
-        self.interval = 2 #2 sec default
+
+        self.interval = 2  # Default interval in seconds
+        self.maxRows = 8000  # Default max rows
+        self.rowCount = 0
+
         
     def initFile(self):
         now = dt.now()
@@ -180,7 +176,6 @@ class MainWindow(QMainWindow):
         self.ui.graphWidget.setLabel("bottom", "Time", **styles)
         self.ui.graphWidget.getAxis('bottom').setStyle(tickTextOffset=10)
         self.ui.graphWidget.setAxisItems({'bottom': DateAxisItem(orientation='bottom')})
-        self.ui.graphWidget.showGrid(x=True, y=True, alpha=0.4)
         self.time = []
         self.data = [[] for _ in range(8)]
         self.plotLines = []
@@ -195,6 +190,7 @@ class MainWindow(QMainWindow):
         else:
             self.startRun()
 
+    """
     def startRun(self):
         self.serialPort = self.ui.ComboBox_1.currentText()
         if 'COM' not in self.serialPort:
@@ -204,25 +200,53 @@ class MainWindow(QMainWindow):
         if self.serialPort is None:
             print(self, "No port selected")
             return
-
         try:
-            self.interval = int(self.ui.intervalInput.text())
-            print(f"Using input interval: {self.interval} seconds")
-        except ValueError:
-            print("Using default interval: 2 seconds")
-            self.interval = 2
-
-            
-        try:
-            self.worker = Worker(self.serialPort,self.interval)
+            self.worker = Worker(self.serialPort)
             self.worker.result.connect(self.updateData)
             self.worker.start()
             print("Starting Worker")
         except serial.SerialException as e:
             print(f"Could not open serial port: {e}")
             self.worker = None
+    """
 
+    def startRun(self):
+        self.serialPort = self.ui.ComboBox_1.currentText()
+        if 'COM' not in self.serialPort:
+            self.serialPort = "/dev/" + self.ui.ComboBox_1.currentText()
+        print(f"Connected to: {self.serialPort}")
 
+        if self.serialPort is None:
+            print(self, "No port selected")
+            return
+
+        try:
+            self.interval = int(self.ui.intervalInput.text())
+        except ValueError:
+            print("Invalid interval input. Using default value of 2 seconds.")
+            self.interval = 2
+        
+        try:
+            stop_condition = self.ui.stopConditionInput.text()
+            if stop_condition:
+                self.maxRows = int(stop_condition)
+            else:
+                print("Invalid stop condition input. Using default value of 8000 rows.")
+                self.maxRows = 8000
+        except ValueError:
+            print("Invalid stop condition input. Using default value of 8000 rows.")
+            self.maxRows = 8000
+
+        self.rowCount = 0
+
+        try:
+            self.worker = Worker(self.serialPort, self.interval)
+            self.worker.result.connect(self.updateData)
+            self.worker.start()
+            print("Starting Worker")
+        except serial.SerialException as e:
+            print(f"Could not open serial port: {e}")
+            self.worker = None
 
     def stopRun(self):
         if self.worker:
@@ -293,6 +317,13 @@ class MainWindow(QMainWindow):
             self.data[i].append(temperatures[i])
             if self.ui.checkboxes[i].isChecked():
                 self.plotLines[i].setData(self.time, self.data[i])
+
+            
+
+        self.rowCount += 1
+        if self.rowCount >= self.maxRows:
+            self.startLogging()
+            self.rowCount = 0
 
         if self.filename:
             self.LogData(current_time, temperatures)

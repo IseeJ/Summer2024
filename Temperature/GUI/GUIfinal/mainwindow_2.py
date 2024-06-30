@@ -44,12 +44,14 @@ class Ui_MainWindow(object):
 
         self.intervalInput = QtWidgets.QLineEdit(self.centralwidget)
         self.intervalInput.setObjectName("intervalInput")
-        self.intervalInput.setPlaceholderText("Logging Interval (s)")
-        self.intervalInput.setMaximumSize(QtCore.QSize(200, 16777215)) 
+        self.intervalInput.setPlaceholderText("Enter time interval (seconds)")
         self.horizontalLayout_2.addWidget(self.intervalInput)
         
-
-
+        self.stopConditionInput = QtWidgets.QLineEdit(self.centralwidget)
+        self.stopConditionInput.setObjectName("stopConditionInput")
+        self.stopConditionInput.setPlaceholderText("Enter stop condition (rows or file size)")
+        self.horizontalLayout_2.addWidget(self.stopConditionInput)
+        
         """
         self.ConnectButton = QtWidgets.QPushButton(self.centralwidget)
         self.ConnectButton.setObjectName("ConnectButton")
