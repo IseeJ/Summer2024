@@ -41,13 +41,13 @@ class Ui_MainWindow(object):
         self.refreshButton.setText("Refresh")
         self.horizontalLayout_2.addWidget(self.refreshButton)
 
-
+        """
         self.intervalInput = QtWidgets.QLineEdit(self.centralwidget)
         self.intervalInput.setObjectName("intervalInput")
         self.intervalInput.setPlaceholderText("Logging Interval (s)")
         self.intervalInput.setMaximumSize(QtCore.QSize(200, 16777215)) 
         self.horizontalLayout_2.addWidget(self.intervalInput)
-        
+        """
 
 
         """
