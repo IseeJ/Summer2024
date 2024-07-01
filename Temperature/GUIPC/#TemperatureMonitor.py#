@@ -273,8 +273,6 @@ class MainWindow(QMainWindow):
 
 app = QApplication(sys.argv)
 path = os.path.join(os.path.dirname(sys.modules[__name__].__file__), 'icon.png')
-app.setWindowIcon(QIcon(path))
-
 window = MainWindow()
 window.show()
 app.exec_()

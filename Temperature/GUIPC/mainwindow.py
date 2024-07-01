@@ -10,7 +10,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QModelIndex, QObject, QPoint
-from PyQt5.QtGui import QPixmap, QPainter, QColor, QFont, QImage
+from PyQt5.QtGui import QPixmap, QPainter, QColor, QFont, QImage, QIcon
 from pyqtgraph import PlotWidget
 from PyQt5.QtWidgets import*
 
@@ -227,7 +227,11 @@ class Ui_MainWindow(object):
     """
 if __name__ == "__main__":
     import sys
+    import os
     app = QtWidgets.QApplication(sys.argv)
+    path = os.path.join(os.path.dirname(sys.modules[__name__].__file__), 'icon.png')
+    app.setWindowIcon(QIcon(path))
+
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
