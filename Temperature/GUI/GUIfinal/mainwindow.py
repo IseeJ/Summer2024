@@ -50,6 +50,12 @@ class Ui_MainWindow(object):
         """
 
 
+        self.ComboBox_2 = QtWidgets.QComboBox(self.centralwidget)
+        self.ComboBox_2.setObjectName("ComboBox_2")
+        self.ComboBox_2.addItems(["4800", "9600","19200", "38400", "57600", "115200"])
+        self.horizontalLayout_2.addWidget(self.ComboBox_2)
+
+        
         """
         self.ConnectButton = QtWidgets.QPushButton(self.centralwidget)
         self.ConnectButton.setObjectName("ConnectButton")
