@@ -1,6 +1,5 @@
-import os
 import csv
-import sys
+import sys, os
 import time
 import datetime as dt
 import serial
@@ -31,12 +30,13 @@ class DateAxisItem(AxisItem):
 class Worker(QThread):
     result = pyqtSignal(str, tuple)
     
-    def __init__(self, port, interval):
+    def __init__(self, port, interval, baud):
         super().__init__()
         self.ser = None
         self.is_running = True
         self.port = port
         self.interval = interval
+        self.baud = baud
         
         self.READ_BIT_INHEX = 74
         self.READ_BIT = 37
@@ -45,7 +45,7 @@ class Worker(QThread):
 
     def run(self):
         try:
-            self.ser = serial.Serial(self.port, 38400, timeout=10000)
+            self.ser = serial.Serial(self.port, self.baud, timeout=10000)
             hex_data = [0x01, 0x16, 0x7B, 0x28, 0x48, 0x4C, 0x45, 0x48, 0x54, 0x43, 0x34, 0x30, 0x39, 0x35, 0x67, 0x71, 0x29, 0x7D, 0x7E, 0x04]
             byte_data = bytearray(hex_data)
             while self.is_running:
@@ -138,6 +138,7 @@ class PurifierModel(QObject):
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
+        self.setWindowIcon(QIcon('logo.png'))
         self.worker = None
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -153,6 +154,7 @@ class MainWindow(QMainWindow):
         self.serialPort = None
         self.saveDirectory = None
         self.interval = 2 #2 sec default
+        self.baud = 38400 #38400 default
         
     def initFile(self):
         now = dt.datetime.now()
@@ -188,11 +190,13 @@ class MainWindow(QMainWindow):
 
     def startRun(self):
         self.serialPort = self.ui.ComboBox_1.currentText()
+        self.baud = int(self.ui.ComboBox_2.currentText())
         """
         if 'COM' not in self.serialPort:
             self.serialPort = "/dev/" + self.ui.ComboBox_1.currentText()
         """
         print(f"Connected to: {self.serialPort}")
+        print(f"Set baud rate to: {self.baud}")
         
         if self.serialPort is None:
             print(self, "No port selected")
@@ -206,7 +210,7 @@ class MainWindow(QMainWindow):
             self.interval = 2
 
         try:
-            self.worker = Worker(self.serialPort, self.interval)
+            self.worker = Worker(self.serialPort, self.interval, self.baud)
             self.worker.result.connect(self.updateData)
             self.worker.start()
             print("Starting Worker")
@@ -272,7 +276,8 @@ class MainWindow(QMainWindow):
             print(f"Error writing to file: {e}")
 
 app = QApplication(sys.argv)
-path = os.path.join(os.path.dirname(sys.modules[__name__].__file__), 'icon.png')
+path = os.path.join(os.path.dirname(sys.modules[__name__].__file__), 'logo.png')
+app.setWindowIcon(QIcon(path))
 window = MainWindow()
 window.show()
 app.exec_()
