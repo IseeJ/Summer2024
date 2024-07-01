@@ -30,11 +30,14 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
 
-
-
         self.ComboBox_1 = QtWidgets.QComboBox(self.centralwidget)
         self.ComboBox_1.setObjectName("ComboBox_1")
         self.horizontalLayout_2.addWidget(self.ComboBox_1)
+
+        self.ComboBox_2 = QtWidgets.QComboBox(self.centralwidget)
+        self.ComboBox_2.setObjectName("ComboBox_2")
+        self.ComboBox_2.addItems(["38400", "4800", "9600","19200", "57600", "115200"])
+        self.horizontalLayout_2.addWidget(self.ComboBox_2)
 
         self.refreshButton = QtWidgets.QPushButton(self.centralwidget)
         self.refreshButton.setObjectName("refreshButton")
@@ -226,12 +229,10 @@ class Ui_MainWindow(object):
 
     """
 if __name__ == "__main__":
-    import sys
-    import os
+    import sys, os
     app = QtWidgets.QApplication(sys.argv)
-    path = os.path.join(os.path.dirname(sys.modules[__name__].__file__), 'icon.png')
-    app.setWindowIcon(QIcon(path))
-
+    path = os.path.join(os.path.dirname(sys.modules[__name__].__file__), 'logo.png')
+    app.setWindowIcon(QtGui.QIcon(path))
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
